@@ -24,23 +24,16 @@ configurations {
 
 dependencies {
     //implementation a → z
-    implementation 'org.springframework.boot:spring-boot-starter-web'
-
-    //compileOnly a → z
     compileOnly 'org.projectlombok:lombok'
-
-    //annotationProcessor
     annotationProcessor 'org.projectlombok:lombok'
 
+    implementation 'org.springframework.boot:spring-boot-starter-web'
 
-    //testImplementation a → z
-    testImplementation 'org.springframework.boot:spring-boot-starter-test'
-
-    //testCompileOnly a → z
+    //test a → z
     testCompileOnly 'org.projectlombok:lombok'
-
-    //testAnnotationProcessor a → z
     testAnnotationProcessor 'org.projectlombok:lombok'
+
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
 
 
 }
