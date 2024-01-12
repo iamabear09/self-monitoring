@@ -16,9 +16,33 @@ repositories {
     mavenCentral()
 }
 
+configurations {
+    compileOnly {
+        extendsFrom annotationProcessor
+    }
+}
+
 dependencies {
+    //implementation a → z
     implementation 'org.springframework.boot:spring-boot-starter-web'
+
+    //compileOnly a → z
+    compileOnly 'org.projectlombok:lombok'
+
+    //annotationProcessor
+    annotationProcessor 'org.projectlombok:lombok'
+
+
+    //testImplementation a → z
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
+
+    //testCompileOnly a → z
+    testCompileOnly 'org.projectlombok:lombok'
+
+    //testAnnotationProcessor a → z
+    testAnnotationProcessor 'org.projectlombok:lombok'
+
+
 }
 
 tasks.named('test', Test) {
