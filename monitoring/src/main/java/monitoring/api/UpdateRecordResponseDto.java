@@ -7,9 +7,11 @@ import java.time.LocalTime;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
-@ToString
-public class CreateRecordsRequestDto {
+@EqualsAndHashCode  //for test
+@ToString //for test
+public class UpdateRecordResponseDto {
 
+    private Long recordId;
     private LocalDate date;
     private LocalTime startTime;
     private Long durationMinutes;
@@ -17,7 +19,8 @@ public class CreateRecordsRequestDto {
     private String memo;
 
     @Builder
-    private CreateRecordsRequestDto(LocalDate date, LocalTime startTime, Long durationMinutes, String action, String memo) {
+    private UpdateRecordResponseDto(Long recordId, LocalDate date, LocalTime startTime, Long durationMinutes, String action, String memo) {
+        this.recordId = recordId;
         this.date = date;
         this.startTime = startTime;
         this.durationMinutes = durationMinutes;

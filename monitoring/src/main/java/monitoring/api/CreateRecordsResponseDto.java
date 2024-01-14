@@ -6,10 +6,10 @@ import lombok.*;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class CreateRecordsResponseDto {
 
-    private Long id;
+    private Long recordId;
 
     @Builder
-    public CreateRecordsResponseDto(Long id) {
-        this.id = id;
+    private CreateRecordsResponseDto(Long recordId) {
+        this.recordId = recordId;
     }
 }

@@ -1,14 +1,16 @@
 package monitoring.api;
 
-import lombok.*;
+import lombok.AccessLevel;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
-@ToString
-public class CreateRecordsRequestDto {
+public class UpdateRecordRequestDto {
 
     private LocalDate date;
     private LocalTime startTime;
@@ -17,7 +19,7 @@ public class CreateRecordsRequestDto {
     private String memo;
 
     @Builder
-    private CreateRecordsRequestDto(LocalDate date, LocalTime startTime, Long durationMinutes, String action, String memo) {
+    private UpdateRecordRequestDto(LocalDate date, LocalTime startTime, Long durationMinutes, String action, String memo) {
         this.date = date;
         this.startTime = startTime;
         this.durationMinutes = durationMinutes;
