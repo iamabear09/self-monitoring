@@ -2,7 +2,6 @@ package monitoring.api;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,7 +42,7 @@ class RecordsApiControllerTest {
         String action = "공부";
         String memo = "API 설계";
 
-        CreateRecordsRequestDto request = CreateRecordsRequestDto.builder()
+        CreateRecordRequestDto request = CreateRecordRequestDto.builder()
                 .date(date)
                 .startTime(startTime)
                 .durationMinutes(durationMinutes)
@@ -63,8 +62,8 @@ class RecordsApiControllerTest {
                 .andDo(print());
 
 
-        CreateRecordsResponseDto response
-                = objectMapper.readValue(resultActions.andReturn().getResponse().getContentAsString(StandardCharsets.UTF_8), CreateRecordsResponseDto.class);
+        CreateRecordResponseDto response
+                = objectMapper.readValue(resultActions.andReturn().getResponse().getContentAsString(StandardCharsets.UTF_8), CreateRecordResponseDto.class);
 
         assertThat(response.getRecordId()).isEqualTo(1L);
     }

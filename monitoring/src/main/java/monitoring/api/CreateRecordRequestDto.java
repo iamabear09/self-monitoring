@@ -8,7 +8,7 @@ import java.time.LocalTime;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 @ToString
-public class CreateRecordsRequestDto {
+public class CreateRecordRequestDto {
 
     private LocalDate date;
     private LocalTime startTime;
@@ -17,7 +17,7 @@ public class CreateRecordsRequestDto {
     private String memo;
 
     @Builder
-    private CreateRecordsRequestDto(LocalDate date, LocalTime startTime, Long durationMinutes, String action, String memo) {
+    private CreateRecordRequestDto(LocalDate date, LocalTime startTime, Long durationMinutes, String action, String memo) {
         this.date = date;
         this.startTime = startTime;
         this.durationMinutes = durationMinutes;

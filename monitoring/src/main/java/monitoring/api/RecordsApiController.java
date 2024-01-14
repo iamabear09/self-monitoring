@@ -1,11 +1,7 @@
 package monitoring.api;
 
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
-
-import java.time.LocalDate;
-import java.time.LocalTime;
 
 @Slf4j
 @RestController
@@ -13,13 +9,11 @@ import java.time.LocalTime;
 public class RecordsApiController {
 
     @PostMapping
-    public CreateRecordsResponseDto createRecords(@RequestBody CreateRecordsRequestDto request) {
+    public CreateRecordResponseDto createRecords(@RequestBody CreateRecordRequestDto request) {
         log.info(">>> createRecords 호출");
-        log.info(">>> request: {}", request.toString());
 
         log.info(">>> createRecords 종료");
-
-        return CreateRecordsResponseDto.builder()
+        return CreateRecordResponseDto.builder()
                 .recordId(1L)
                 .build();
     }
@@ -27,9 +21,9 @@ public class RecordsApiController {
     @PatchMapping("/{id}")
     public UpdateRecordResponseDto updateRecords(@PathVariable Long id,
                                                  @RequestBody UpdateRecordRequestDto request) {
+        log.info("updateRecords 호출");
 
-        log.info(">>> request :: {}", request.toString());
-
+        log.info("updateRecords 종료");
         return UpdateRecordResponseDto.builder()
                 .recordId(id)
                 .date(request.getDate())

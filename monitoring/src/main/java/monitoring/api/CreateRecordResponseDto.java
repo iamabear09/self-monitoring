@@ -4,12 +4,12 @@ import lombok.*;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
-public class CreateRecordsResponseDto {
+public class CreateRecordResponseDto {
 
     private Long recordId;
 
     @Builder
-    private CreateRecordsResponseDto(Long recordId) {
+    private CreateRecordResponseDto(Long recordId) {
         this.recordId = recordId;
     }
 }
