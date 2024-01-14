@@ -9,14 +9,13 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.time.LocalTime;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -32,7 +31,7 @@ class RecordsApiControllerTest {
     private MockMvc mockMvc;
 
     @Test
-    @DisplayName("Records 생성 요청 성공")
+    @DisplayName("Record 생성 요청 - 성공")
     void createRecords() throws Exception {
 
         //given
@@ -61,7 +60,6 @@ class RecordsApiControllerTest {
                 .andExpect(status().isOk())
                 .andDo(print());
 
-
         CreateRecordResponseDto response
                 = objectMapper.readValue(resultActions.andReturn().getResponse().getContentAsString(StandardCharsets.UTF_8), CreateRecordResponseDto.class);
 
@@ -69,10 +67,8 @@ class RecordsApiControllerTest {
     }
 
     @Test
-    @DisplayName("Patch 수정 요청 성공")
-    void updateRecordsByPatch() throws Exception {
-
-
+    @DisplayName("Record 조회 요청 - 성공")
+    void getRecord() throws Exception{
         //given
         Long id = 1L;
         LocalDate date = LocalDate.of(2024, 1, 13);
@@ -81,7 +77,7 @@ class RecordsApiControllerTest {
         String action = "운동";
         String meno = "헬스장";
 
-        UpdateRecordRequestDto request = UpdateRecordRequestDto.builder()
+        RecordDto recordDto = RecordDto.builder()
                 .date(date)
                 .startTime(startTime)
                 .durationMinutes(durationMinutes)
@@ -92,7 +88,53 @@ class RecordsApiControllerTest {
 
         //when
         ResultActions resultActions
-                = mockMvc.perform(MockMvcRequestBuilders.patch("/api/records/{id}", id)
+                = mockMvc.perform(get("/api/records/{id}", id));
+
+
+        //then
+        resultActions
+                .andExpect(status().isOk())
+                .andDo(print());
+
+        RecordDto response = objectMapper.readValue(resultActions.andReturn().getResponse().getContentAsString(StandardCharsets.UTF_8), RecordDto.class);
+        RecordDto expected =
+                RecordDto.builder()
+                .recordId(id)
+                .date(date)
+                .startTime(startTime)
+                .durationMinutes(durationMinutes)
+                .action(action)
+                .memo(meno)
+                .build();
+
+        assertThat(response).isEqualTo(expected);
+    }
+
+    @Test
+    @DisplayName("Patch 를 통한 Record 수정 요청 - 성공")
+    void updateRecordsByPatch() throws Exception {
+
+
+        //given
+        Long id = 1L;
+        LocalDate date = LocalDate.of(2024, 1, 13);
+        LocalTime startTime = LocalTime.of(13, 10);
+        Long durationMinutes = 60L;
+        String action = "운동";
+        String memo = "헬스장";
+
+        UpdateRecordRequestDto request = UpdateRecordRequestDto.builder()
+                .date(date)
+                .startTime(startTime)
+                .durationMinutes(durationMinutes)
+                .action(action)
+                .memo(memo)
+                .build();
+
+
+        //when
+        ResultActions resultActions
+                = mockMvc.perform(patch("/api/records/{id}", id)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request)));
 
@@ -101,16 +143,17 @@ class RecordsApiControllerTest {
                 .andExpect(status().isOk())
                 .andDo(print());
 
-        UpdateRecordResponseDto response
-                = objectMapper.readValue(resultActions.andReturn().getResponse().getContentAsString(StandardCharsets.UTF_8), UpdateRecordResponseDto.class);
-
-        assertThat(response).isEqualTo(UpdateRecordResponseDto.builder()
+        UpdateRecordResponseDto response = objectMapper.readValue(resultActions.andReturn().getResponse().getContentAsString(StandardCharsets.UTF_8), UpdateRecordResponseDto.class);
+        UpdateRecordResponseDto expected =
+                UpdateRecordResponseDto.builder()
                 .recordId(id)
                 .date(date)
                 .startTime(startTime)
                 .durationMinutes(durationMinutes)
                 .action(action)
-                .memo(meno)
-                .build());
+                .memo(memo)
+                .build();
+
+        assertThat(response).isEqualTo(expected);
     }
 }
