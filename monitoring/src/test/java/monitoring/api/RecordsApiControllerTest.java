@@ -14,6 +14,7 @@ import org.springframework.test.web.servlet.ResultActions;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -36,18 +37,23 @@ class RecordsApiControllerTest {
     void createRecords() throws Exception {
 
         //given
-        LocalDate date = LocalDate.of(2024, 1, 12);
-        LocalTime startTime = LocalTime.of(11, 10);
-        Long durationMinutes = 30L;
         String action = "공부";
         String memo = "API 설계";
 
-        CreateRecordRequestDto request = CreateRecordRequestDto.builder()
+        LocalDate date = LocalDate.of(2024, 1, 12);
+        LocalTime startTime = LocalTime.of(11, 10);
+        Long durationMinutes = 30L;
+
+        List<CreateRecordRequestDto.Time> timeRecords = List.of(CreateRecordRequestDto.Time.builder()
                 .date(date)
                 .startTime(startTime)
                 .durationMinutes(durationMinutes)
+                .build());
+
+        CreateRecordRequestDto request = CreateRecordRequestDto.builder()
                 .action(action)
                 .memo(memo)
+                .timeRecords(timeRecords)
                 .build();
 
         //when
@@ -79,9 +85,6 @@ class RecordsApiControllerTest {
         String meno = "헬스장";
 
         RecordDto recordDto = RecordDto.builder()
-                .date(date)
-                .startTime(startTime)
-                .durationMinutes(durationMinutes)
                 .action(action)
                 .memo(meno)
                 .build();
@@ -101,9 +104,6 @@ class RecordsApiControllerTest {
         RecordDto expected =
                 RecordDto.builder()
                 .recordId(id)
-                .date(date)
-                .startTime(startTime)
-                .durationMinutes(durationMinutes)
                 .action(action)
                 .memo(meno)
                 .build();

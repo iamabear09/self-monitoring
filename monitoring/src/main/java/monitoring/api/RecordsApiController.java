@@ -36,9 +36,6 @@ public class RecordsApiController {
         log.info(">>> getRecord 종료");
         return RecordDto.builder()
                 .recordId(id)
-                .date(date)
-                .startTime(startTime)
-                .durationMinutes(durationMinutes)
                 .action(action)
                 .memo(memo)
                 .build();
