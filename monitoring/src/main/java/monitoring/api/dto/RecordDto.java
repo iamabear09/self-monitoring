@@ -1,4 +1,4 @@
-package monitoring.api;
+package monitoring.api.dto;
 
 import lombok.*;
 
@@ -6,10 +6,10 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 
 @Getter
+@EqualsAndHashCode //for test
+@ToString
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
-@EqualsAndHashCode  //for test
-@ToString //for test
-public class UpdateRecordResponseDto {
+public class RecordDto {
 
     private Long recordId;
     private LocalDate date;
@@ -19,7 +19,7 @@ public class UpdateRecordResponseDto {
     private String memo;
 
     @Builder
-    private UpdateRecordResponseDto(Long recordId, LocalDate date, LocalTime startTime, Long durationMinutes, String action, String memo) {
+    private RecordDto(Long recordId, LocalDate date, LocalTime startTime, Long durationMinutes, String action, String memo) {
         this.recordId = recordId;
         this.date = date;
         this.startTime = startTime;

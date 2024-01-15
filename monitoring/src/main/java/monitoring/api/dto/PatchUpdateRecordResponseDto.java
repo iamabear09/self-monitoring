@@ -1,17 +1,17 @@
-package monitoring.api;
+package monitoring.api.dto;
 
-import lombok.AccessLevel;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
-public class UpdateRecordRequestDto {
+@EqualsAndHashCode  //for test
+@ToString //for test
+public class PatchUpdateRecordResponseDto {
 
+    private Long recordId;
     private LocalDate date;
     private LocalTime startTime;
     private Long durationMinutes;
@@ -19,7 +19,8 @@ public class UpdateRecordRequestDto {
     private String memo;
 
     @Builder
-    private UpdateRecordRequestDto(LocalDate date, LocalTime startTime, Long durationMinutes, String action, String memo) {
+    private PatchUpdateRecordResponseDto(Long recordId, LocalDate date, LocalTime startTime, Long durationMinutes, String action, String memo) {
+        this.recordId = recordId;
         this.date = date;
         this.startTime = startTime;
         this.durationMinutes = durationMinutes;

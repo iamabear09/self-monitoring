@@ -2,6 +2,7 @@ package monitoring.api;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
+import monitoring.api.dto.*;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -123,7 +124,7 @@ class RecordsApiControllerTest {
         String action = "운동";
         String memo = "헬스장";
 
-        UpdateRecordRequestDto request = UpdateRecordRequestDto.builder()
+        PatchUpdateRecordRequestDto request = PatchUpdateRecordRequestDto.builder()
                 .date(date)
                 .startTime(startTime)
                 .durationMinutes(durationMinutes)
@@ -143,9 +144,9 @@ class RecordsApiControllerTest {
                 .andExpect(status().isOk())
                 .andDo(print());
 
-        UpdateRecordResponseDto response = objectMapper.readValue(resultActions.andReturn().getResponse().getContentAsString(StandardCharsets.UTF_8), UpdateRecordResponseDto.class);
-        UpdateRecordResponseDto expected =
-                UpdateRecordResponseDto.builder()
+        PatchUpdateRecordResponseDto response = objectMapper.readValue(resultActions.andReturn().getResponse().getContentAsString(StandardCharsets.UTF_8), PatchUpdateRecordResponseDto.class);
+        PatchUpdateRecordResponseDto expected =
+                PatchUpdateRecordResponseDto.builder()
                 .recordId(id)
                 .date(date)
                 .startTime(startTime)
@@ -153,6 +154,54 @@ class RecordsApiControllerTest {
                 .action(action)
                 .memo(memo)
                 .build();
+
+        assertThat(response).isEqualTo(expected);
+    }
+
+
+    @Test
+    @DisplayName("Put 을 통한 Record 수정 요청 - 성공")
+    void updateRecordsByPut() throws Exception {
+
+
+        //given
+        Long id = 1L;
+        LocalDate date = LocalDate.of(2024, 1, 13);
+        LocalTime startTime = LocalTime.of(13, 10);
+        Long durationMinutes = 60L;
+        String action = "운동";
+        String memo = "헬스장";
+
+        PutUpdateRecordResponseDto request = PutUpdateRecordResponseDto.builder()
+                .date(date)
+                .startTime(startTime)
+                .durationMinutes(durationMinutes)
+                .action(action)
+                .memo(memo)
+                .build();
+
+
+        //when
+        ResultActions resultActions
+                = mockMvc.perform(put("/api/records/{id}", id)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)));
+
+        //then
+        resultActions
+                .andExpect(status().isOk())
+                .andDo(print());
+
+        PutUpdateRecordResponseDto response = objectMapper.readValue(resultActions.andReturn().getResponse().getContentAsString(StandardCharsets.UTF_8), PutUpdateRecordResponseDto.class);
+        PutUpdateRecordResponseDto expected =
+                PutUpdateRecordResponseDto.builder()
+                        .recordId(id)
+                        .date(date)
+                        .startTime(startTime)
+                        .durationMinutes(durationMinutes)
+                        .action(action)
+                        .memo(memo)
+                        .build();
 
         assertThat(response).isEqualTo(expected);
     }

@@ -1,6 +1,7 @@
 package monitoring.api;
 
 import lombok.extern.slf4j.Slf4j;
+import monitoring.api.dto.*;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
@@ -12,7 +13,7 @@ import java.time.LocalTime;
 public class RecordsApiController {
 
     @PostMapping
-    public CreateRecordResponseDto createRecords(@RequestBody CreateRecordRequestDto request) {
+    public CreateRecordResponseDto createRecord(@RequestBody CreateRecordRequestDto request) {
         log.info(">>> createRecords 호출");
 
         log.info(">>> createRecords 종료");
@@ -45,12 +46,28 @@ public class RecordsApiController {
     }
 
     @PatchMapping("/{id}")
-    public UpdateRecordResponseDto updateRecords(@PathVariable Long id,
-                                                 @RequestBody UpdateRecordRequestDto request) {
-        log.info("updateRecords 호출");
+    public PatchUpdateRecordResponseDto updateRecordByPatch(@PathVariable Long id,
+                                                            @RequestBody PatchUpdateRecordRequestDto request) {
+        log.info("updateRecordByPatch 호출");
 
-        log.info("updateRecords 종료");
-        return UpdateRecordResponseDto.builder()
+        log.info("updateRecordByPatch 종료");
+        return PatchUpdateRecordResponseDto.builder()
+                .recordId(id)
+                .date(request.getDate())
+                .startTime(request.getStartTime())
+                .durationMinutes(request.getDurationMinutes())
+                .action(request.getAction())
+                .memo(request.getMemo())
+                .build();
+    }
+
+    @PutMapping("/{id}")
+    public PutUpdateRecordResponseDto updateRecordByPatch(@PathVariable Long id,
+                                                            @RequestBody PutUpdateRecordRequestDto request) {
+        log.info("updateRecordByPut 호출");
+
+        log.info("updateRecordByPut 종료");
+        return PutUpdateRecordResponseDto.builder()
                 .recordId(id)
                 .date(request.getDate())
                 .startTime(request.getStartTime())
