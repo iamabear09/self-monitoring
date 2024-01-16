@@ -2,8 +2,9 @@ package monitoring.api.dto;
 
 import lombok.*;
 
-import java.time.LocalDate;
-import java.time.LocalTime;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
@@ -11,20 +12,26 @@ import java.time.LocalTime;
 @ToString //for test
 public class PutUpdateRecordResponseDto {
 
-    private Long recordId;
-    private LocalDate date;
-    private LocalTime startTime;
-    private Long durationMinutes;
-    private String action;
-    private String memo;
+    private RecordDto updatedRecord;
+
+    private Integer deletedRecordsNum;
+    private List<Long> deleteRecordsIds;
+    private Integer affectedRecordsNum;
+    private List<RecordDto> affectedRecords;
+
 
     @Builder
-    private PutUpdateRecordResponseDto(Long recordId, LocalDate date, LocalTime startTime, Long durationMinutes, String action, String memo) {
-        this.recordId = recordId;
-        this.date = date;
-        this.startTime = startTime;
-        this.durationMinutes = durationMinutes;
-        this.action = action;
-        this.memo = memo;
+    public PutUpdateRecordResponseDto(RecordDto updatedRecord, List<Long> deleteRecordsIds, List<RecordDto> affectedRecords) {
+        this.updatedRecord = updatedRecord;
+        this.deleteRecordsIds = Optional
+                .ofNullable(deleteRecordsIds)
+                .orElse(new ArrayList<>());
+        this.deletedRecordsNum = this.deleteRecordsIds.size();
+
+        this.affectedRecords = Optional.ofNullable(affectedRecords)
+                .orElse(new ArrayList<>());
+        this.affectedRecordsNum = this.affectedRecords.size();
     }
 }
+
+

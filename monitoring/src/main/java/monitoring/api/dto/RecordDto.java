@@ -5,6 +5,7 @@ import lombok.*;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
+import java.util.Optional;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
@@ -24,14 +25,18 @@ public class RecordDto {
         this.recordId = recordId;
         this.action = action;
         this.memo = memo;
-        this.timeRecordsNum = timeRecords.size();
         this.timeRecords = timeRecords;
+        if (timeRecords != null) {
+            this.timeRecordsNum = timeRecords.size();
+        }
     }
 
 
     // To save time records
     @Getter
     @NoArgsConstructor(access = AccessLevel.PRIVATE)
+    @EqualsAndHashCode  //for test
+    @ToString   //for test
     public static class Time {
         private Long timeId;
         private LocalDate date;
@@ -44,8 +49,10 @@ public class RecordDto {
             this.timeId = timeId;
             this.date = date;
             this.startTime = startTime;
-            this.endTime = startTime.plusMinutes(durationMinutes);
-            this.durationMinutes = durationMinutes;
+            this.durationMinutes = Optional.ofNullable(durationMinutes).orElse(0L);
+            if (startTime != null) {
+                this.endTime = startTime.plusMinutes(this.durationMinutes);
+            }
         }
     }
 }
