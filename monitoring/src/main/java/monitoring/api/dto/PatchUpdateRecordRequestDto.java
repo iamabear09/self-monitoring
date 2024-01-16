@@ -15,7 +15,7 @@ public class PatchUpdateRecordRequestDto {
     private List<Time> timeRecords;
 
     @Builder
-    public PatchUpdateRecordRequestDto(String action, String memo, List<Time> timeRecords) {
+    private PatchUpdateRecordRequestDto(String action, String memo, List<Time> timeRecords) {
         this.action = action;
         this.memo = memo;
         this.timeRecords = timeRecords;
@@ -30,7 +30,7 @@ public class PatchUpdateRecordRequestDto {
         private Long durationMinutes;
 
         @Builder
-        public Time(LocalDate date, LocalTime startTime, Long durationMinutes) {
+        private Time(LocalDate date, LocalTime startTime, Long durationMinutes) {
             this.date = date;
             this.startTime = startTime;
             this.durationMinutes = durationMinutes;

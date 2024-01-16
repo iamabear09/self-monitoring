@@ -21,7 +21,7 @@ public class PutUpdateRecordResponseDto {
 
 
     @Builder
-    public PutUpdateRecordResponseDto(RecordDto updatedRecord, List<Long> deleteRecordsIds, List<RecordDto> affectedRecords) {
+    private PutUpdateRecordResponseDto(RecordDto updatedRecord, List<Long> deleteRecordsIds, List<RecordDto> affectedRecords) {
         this.updatedRecord = updatedRecord;
         this.deleteRecordsIds = Optional
                 .ofNullable(deleteRecordsIds)

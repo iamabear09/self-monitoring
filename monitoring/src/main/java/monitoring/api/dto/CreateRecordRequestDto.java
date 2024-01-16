@@ -30,7 +30,7 @@ public class CreateRecordRequestDto {
         private Long durationMinutes;
 
         @Builder
-        public Time(LocalDate date, LocalTime startTime, Long durationMinutes) {
+        private Time(LocalDate date, LocalTime startTime, Long durationMinutes) {
             this.date = date;
             this.startTime = startTime;
             this.durationMinutes = durationMinutes;
