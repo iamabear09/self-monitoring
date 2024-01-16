@@ -53,6 +53,67 @@ public class RecordsApiController {
                 .build();
     }
 
+    @GetMapping
+    public SearchRecordsResponseDto getRecords(@ModelAttribute RecordsSearchCond cond) {
+        log.info(">>> getRecords 호출");
+        log.info(">>> cond = {}", cond);
+
+        //mock data
+        Long recordId1 = 1L;
+        String action1 = "운동";
+        String meno1 = "헬스장";
+
+        Long timeId1 = 1L;
+        LocalDate date1 = LocalDate.of(2024, 1, 13);
+        LocalTime startTime1 = LocalTime.of(13, 10);
+        Long durationMinutes1 = 60L;
+
+        List<RecordDto.Time> timeRecords1 = List.of(RecordDto.Time.builder()
+                .timeId(timeId1)
+                .date(date1)
+                .startTime(startTime1)
+                .durationMinutes(durationMinutes1)
+                .build());
+
+        RecordDto recordDto1 = RecordDto.builder()
+                .recordId(recordId1)
+                .action(action1)
+                .memo(meno1)
+                .timeRecords(timeRecords1)
+                .build();
+
+        //mock data
+        Long recordId2 = 2L;
+        String action2 = "공부";
+        String meno2 = "API 설계";
+
+        Long timeId2 = 2L;
+        LocalDate date2 = LocalDate.of(2024, 1, 11);
+        LocalTime startTime2 = LocalTime.of(13, 10);
+        Long durationMinutes2 = 60L;
+
+        List<RecordDto.Time> timeRecords2 = List.of(RecordDto.Time.builder()
+                .timeId(timeId2)
+                .date(date2)
+                .startTime(startTime2)
+                .durationMinutes(durationMinutes2)
+                .build());
+
+        RecordDto recordDto2 = RecordDto.builder()
+                .recordId(recordId2)
+                .action(action2)
+                .memo(meno2)
+                .timeRecords(timeRecords2)
+                .build();
+
+        log.info(">>> getRecord 종료");
+
+        return SearchRecordsResponseDto.builder()
+                .records(List.of(recordDto1, recordDto2))
+                .build();
+    }
+
+
     @PatchMapping("/{id}")
     public RecordDto updateRecordByPatch(@PathVariable Long id,
                                                             @RequestBody PatchUpdateRecordRequestDto request) {
@@ -136,6 +197,5 @@ public class RecordsApiController {
                 .affectedRecords(List.of(affectedRecord))
                 .updatedRecord(updatedRecords)
                 .build();
-
     }
 }
