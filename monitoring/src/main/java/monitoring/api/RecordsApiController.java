@@ -2,6 +2,8 @@ package monitoring.api;
 
 import lombok.extern.slf4j.Slf4j;
 import monitoring.api.dto.*;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
@@ -197,5 +199,12 @@ public class RecordsApiController {
                 .affectedRecords(List.of(affectedRecord))
                 .updatedRecord(updatedRecords)
                 .build();
+    }
+
+
+    @DeleteMapping("/{id}")
+    @ResponseStatus(code = HttpStatus.NO_CONTENT)
+    public void deleteRecord(@PathVariable Long id) {
+
     }
 }

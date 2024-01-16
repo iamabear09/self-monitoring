@@ -411,4 +411,16 @@ class RecordsApiControllerTest {
 
         assertThat(response).isEqualTo(expected);
     }
+
+    @Test
+    @DisplayName("Record 삭제 요청 - 성공")
+    void deleteRecord() throws Exception {
+        //given
+        Long recordId = 1L;
+
+        //when & then
+        mockMvc.perform(delete("/api/records/{id}", recordId))
+                .andExpect(status().isNoContent());
+    }
+
 }
