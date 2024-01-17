@@ -17,12 +17,6 @@ repositories {
     mavenCentral()
 }
 
-configurations {
-    compileOnly {
-        extendsFrom annotationProcessor
-    }
-}
-
 dependencies {
     //implementation a → z
     implementation 'org.springframework.boot:spring-boot-starter-web'
