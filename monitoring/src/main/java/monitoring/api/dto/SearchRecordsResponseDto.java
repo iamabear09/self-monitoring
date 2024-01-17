@@ -8,18 +8,16 @@ import java.util.Optional;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
-@EqualsAndHashCode  //for test
-@ToString   //for test
+@EqualsAndHashCode
+@ToString
 public class SearchRecordsResponseDto {
     private Integer recordsNum;
     private List<RecordDto> records;
 
-    @Builder
-    private SearchRecordsResponseDto(List<RecordDto> records) {
+    public SearchRecordsResponseDto(List<RecordDto> records) {
         this.records = Optional
                 .ofNullable(records)
                 .orElse(new ArrayList<>());
-
         this.recordsNum = this.records.size();
     }
 }

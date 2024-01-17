@@ -30,10 +30,10 @@ public class PutUpdateRecordRequestDto {
 
         private LocalDate date;
         private LocalTime startTime;
-        private Long durationMinutes;
+        private Integer durationMinutes;
 
         @Builder
-        private Time(LocalDate date, LocalTime startTime, Long durationMinutes) {
+        private Time(LocalDate date, LocalTime startTime, Integer durationMinutes) {
             this.date = date;
             this.startTime = startTime;
             this.durationMinutes = durationMinutes;

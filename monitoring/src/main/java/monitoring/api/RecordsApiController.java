@@ -2,8 +2,6 @@ package monitoring.api;
 
 import lombok.extern.slf4j.Slf4j;
 import monitoring.api.dto.*;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
@@ -16,48 +14,33 @@ import java.util.List;
 public class RecordsApiController {
 
     @PostMapping
-    public CreateRecordResponseDto createRecord(@RequestBody CreateRecordRequestDto request) {
-        log.info(">>> createRecords 호출");
+    public RecordDto createRecord(@RequestBody CreateRecordRequestDto request) {
 
-        log.info(">>> createRecords 종료");
-        return CreateRecordResponseDto.builder()
-                .recordId(1L)
-                .build();
+        Long timeId = 1L;
+        List<RecordDto.Time> timeRecords = request.getTimeRecords().stream()
+                .map(r -> new RecordDto.Time(timeId, r.getDate(), r.getStartTime(), r.getDurationMinutes()))
+                .toList();
+
+        return new RecordDto(1L, request.getAction(), request.getMemo(), timeRecords);
     }
 
     @GetMapping("/{id}")
     public RecordDto getRecord(@PathVariable Long id) {
-        log.info(">>> getRecord 호출");
 
         //mock data
-        Long recordId = 1L;
         String action = "운동";
         String meno = "헬스장";
 
         Long timeId = 1L;
         LocalDate date = LocalDate.of(2024, 1, 13);
         LocalTime startTime = LocalTime.of(13, 10);
-        Long durationMinutes = 60L;
+        Integer durationMinutes = 60;
 
-        List<RecordDto.Time> timeRecords = List.of(RecordDto.Time.builder()
-                .timeId(timeId)
-                .date(date)
-                .startTime(startTime)
-                .durationMinutes(durationMinutes)
-                .build());
-
-        log.info(">>> getRecord 종료");
-        return RecordDto.builder()
-                .recordId(recordId)
-                .action(action)
-                .memo(meno)
-                .timeRecords(timeRecords)
-                .build();
+        return new RecordDto(id, action, meno, List.of(new RecordDto.Time(timeId, date, startTime, durationMinutes)));
     }
 
     @GetMapping
     public SearchRecordsResponseDto getRecords(@ModelAttribute RecordsSearchCond cond) {
-        log.info(">>> getRecords 호출");
         log.info(">>> cond = {}", cond);
 
         //mock data
@@ -68,21 +51,10 @@ public class RecordsApiController {
         Long timeId1 = 1L;
         LocalDate date1 = LocalDate.of(2024, 1, 13);
         LocalTime startTime1 = LocalTime.of(13, 10);
-        Long durationMinutes1 = 60L;
+        Integer durationMinutes1 = 60;
 
-        List<RecordDto.Time> timeRecords1 = List.of(RecordDto.Time.builder()
-                .timeId(timeId1)
-                .date(date1)
-                .startTime(startTime1)
-                .durationMinutes(durationMinutes1)
-                .build());
-
-        RecordDto recordDto1 = RecordDto.builder()
-                .recordId(recordId1)
-                .action(action1)
-                .memo(meno1)
-                .timeRecords(timeRecords1)
-                .build();
+        List<RecordDto.Time> timeRecords1 = List.of(new RecordDto.Time(timeId1, date1, startTime1, durationMinutes1));
+        RecordDto recordDto1 = new RecordDto(recordId1, action1, meno1, timeRecords1);
 
         //mock data
         Long recordId2 = 2L;
@@ -92,119 +64,64 @@ public class RecordsApiController {
         Long timeId2 = 2L;
         LocalDate date2 = LocalDate.of(2024, 1, 11);
         LocalTime startTime2 = LocalTime.of(13, 10);
-        Long durationMinutes2 = 60L;
+        Integer durationMinutes2 = 60;
 
-        List<RecordDto.Time> timeRecords2 = List.of(RecordDto.Time.builder()
-                .timeId(timeId2)
-                .date(date2)
-                .startTime(startTime2)
-                .durationMinutes(durationMinutes2)
-                .build());
+        List<RecordDto.Time> timeRecords2 = List.of(new RecordDto.Time(timeId2, date2, startTime2, durationMinutes2));
+        RecordDto recordDto2 = new RecordDto(recordId2, action2, meno2, timeRecords2);
 
-        RecordDto recordDto2 = RecordDto.builder()
-                .recordId(recordId2)
-                .action(action2)
-                .memo(meno2)
-                .timeRecords(timeRecords2)
-                .build();
-
-        log.info(">>> getRecord 종료");
-
-        return SearchRecordsResponseDto.builder()
-                .records(List.of(recordDto1, recordDto2))
-                .build();
+        return new SearchRecordsResponseDto(List.of(recordDto1, recordDto2));
     }
 
 
     @PatchMapping("/{id}")
-    public RecordDto updateRecordByPatch(@PathVariable Long id,
-                                                            @RequestBody PatchUpdateRecordRequestDto request) {
-        log.info("updateRecordByPatch 호출");
-        Long timeId = 1L;
+    public RecordDto updateRecordByPatch(@PathVariable Long id, @RequestBody PatchUpdateRecordRequestDto request) {
 
+        Long timeId = 1L;
         List<RecordDto.Time> timeRecords = null;
         if (request.getTimeRecords() != null) {
             timeRecords = request.getTimeRecords().stream()
-                    .map(time -> RecordDto.Time.builder()
-                            .timeId(timeId)
-                            .date(time.getDate())
-                            .startTime(time.getStartTime())
-                            .durationMinutes(time.getDurationMinutes())
-                            .build())
+                    .map(i -> new RecordDto.Time(timeId, i.getDate(),i.getStartTime(),i.getDurationMinutes()))
                     .toList();
         }
-
-        log.info("updateRecordByPatch 종료");
-        return RecordDto.builder()
-                .recordId(id)
-                .action(request.getAction())
-                .memo(request.getMemo())
-                .timeRecords(timeRecords)
-                .build();
+        return new RecordDto(id, request.getAction(), request.getMemo(), timeRecords);
     }
 
 
     @PutMapping("/{id}")
-    public PutUpdateRecordResponseDto updateRecordByPatch(@PathVariable Long id,
-                                                            @RequestBody PutUpdateRecordRequestDto request) {
-        log.info("updateRecordByPut 호출");
-
-        log.info("updateRecordByPut 종료");
+    public PutUpdateRecordResponseDto updateRecordByPatch(@PathVariable Long id, @RequestBody PutUpdateRecordRequestDto request) {
 
         //mock data
         Long timeId = 1L;
         List<RecordDto.Time> timeRecords = request.getTimeRecords().stream()
-                .map(i -> RecordDto.Time.builder()
-                        .timeId(timeId)
-                        .date(i.getDate())
-                        .startTime(i.getStartTime())
-                        .durationMinutes(i.getDurationMinutes())
-                        .build())
+                .map(i -> new RecordDto.Time(timeId, i.getDate(), i.getStartTime(), i.getDurationMinutes()))
                 .toList();
 
-        RecordDto updatedRecords = RecordDto.builder()
-                .recordId(id)
-                .action(request.getAction())
-                .memo(request.getMemo())
-                .timeRecords(timeRecords)
-                .build();
+        RecordDto updatedRecords = new RecordDto(id, request.getAction(), request.getMemo(), timeRecords);
 
 
         //mock data
-        RecordDto.Time time1 = RecordDto.Time.builder()
-                .timeId(5L)
-                .date(LocalDate.of(2024, 1, 1))
-                .startTime(LocalTime.of(10, 10))
-                .durationMinutes(30L)
-                .build();
+        RecordDto.Time time1 = new RecordDto.Time(5L, LocalDate.of(2024, 1, 1), LocalTime.of(10, 10), 30);
+        RecordDto.Time time2 = new RecordDto.Time(6L, LocalDate.of(2024, 1, 1), LocalTime.of(11, 10), 60);
 
-        RecordDto.Time time2 = RecordDto.Time.builder()
-                .timeId(6L)
-                .date(LocalDate.of(2024, 1, 1))
-                .startTime(LocalTime.of(11, 10))
-                .durationMinutes(30L)
-                .build();
-
-        RecordDto affectedRecord = RecordDto.builder()
-                .recordId(id)
-                .action("운동")
-                .memo("벤치프레스")
-                .timeRecords(List.of(time1, time2))
-                .build();
-
+        RecordDto affectedRecord = new RecordDto(11L, "운동", "벤치프레스", List.of(time1, time2));
         List<Long> deleteRecordsIds = List.of(10L, 11L, 12L);
 
-        return PutUpdateRecordResponseDto.builder()
-                .deleteRecordsIds(deleteRecordsIds)
-                .affectedRecords(List.of(affectedRecord))
-                .updatedRecord(updatedRecords)
-                .build();
+        return new PutUpdateRecordResponseDto(updatedRecords, deleteRecordsIds, List.of(affectedRecord));
     }
 
 
     @DeleteMapping("/{id}")
-    @ResponseStatus(code = HttpStatus.NO_CONTENT)
-    public void deleteRecord(@PathVariable Long id) {
+    public RecordDto deleteRecord(@PathVariable Long id) {
 
+        //mock data
+        String action = "운동";
+        String meno = "헬스장";
+
+        Long timeId = 1L;
+        LocalDate date = LocalDate.of(2024, 1, 13);
+        LocalTime startTime = LocalTime.of(13, 10);
+        Integer durationMinutes = 60;
+
+        return new RecordDto(id, action, meno, List.of(new RecordDto.Time(timeId, date, startTime, durationMinutes)));
     }
 }

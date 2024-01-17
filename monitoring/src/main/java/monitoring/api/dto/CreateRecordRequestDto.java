@@ -16,7 +16,7 @@ public class CreateRecordRequestDto {
     private List<Time> timeRecords;
 
     @Builder
-    private CreateRecordRequestDto(String action, String memo, List<Time> timeRecords) {
+    public CreateRecordRequestDto(String action, String memo, List<Time> timeRecords) {
         this.action = action;
         this.memo = memo;
         this.timeRecords = timeRecords;
@@ -27,13 +27,14 @@ public class CreateRecordRequestDto {
     public static class Time {
         private LocalDate date;
         private LocalTime startTime;
-        private Long durationMinutes;
+        private Integer durationMinutes;
 
         @Builder
-        private Time(LocalDate date, LocalTime startTime, Long durationMinutes) {
+        public Time(LocalDate date, LocalTime startTime, Integer durationMinutes) {
             this.date = date;
             this.startTime = startTime;
             this.durationMinutes = durationMinutes;
         }
     }
+
 }

@@ -15,7 +15,7 @@ public class PatchUpdateRecordRequestDto {
     private List<Time> timeRecords;
 
     @Builder
-    private PatchUpdateRecordRequestDto(String action, String memo, List<Time> timeRecords) {
+    public PatchUpdateRecordRequestDto(String action, String memo, List<Time> timeRecords) {
         this.action = action;
         this.memo = memo;
         this.timeRecords = timeRecords;
@@ -23,14 +23,15 @@ public class PatchUpdateRecordRequestDto {
 
     @Getter
     @NoArgsConstructor(access = AccessLevel.PRIVATE)
+    @Builder
     public static class Time {
 
         private LocalDate date;
         private LocalTime startTime;
-        private Long durationMinutes;
+        private Integer durationMinutes;
 
         @Builder
-        private Time(LocalDate date, LocalTime startTime, Long durationMinutes) {
+        public Time(LocalDate date, LocalTime startTime, Integer durationMinutes) {
             this.date = date;
             this.startTime = startTime;
             this.durationMinutes = durationMinutes;
