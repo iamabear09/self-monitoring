@@ -1,4 +1,4 @@
-package monitoring.api.dto;
+package monitoring.api.record;
 
 import lombok.*;
 
@@ -8,15 +8,14 @@ import java.util.List;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
-@ToString
-public class CreateRecordRequestDto {
+public class PatchUpdateRecordRequestDto {
 
     private String action;
     private String memo;
     private List<Time> timeRecords;
 
-    @Builder
-    public CreateRecordRequestDto(String action, String memo, List<Time> timeRecords) {
+    @Builder(access = AccessLevel.PACKAGE)
+    public PatchUpdateRecordRequestDto(String action, String memo, List<Time> timeRecords) {
         this.action = action;
         this.memo = memo;
         this.timeRecords = timeRecords;
@@ -25,16 +24,17 @@ public class CreateRecordRequestDto {
     @Getter
     @NoArgsConstructor(access = AccessLevel.PRIVATE)
     public static class Time {
+
         private LocalDate date;
         private LocalTime startTime;
         private Integer durationMinutes;
 
-        @Builder
+        @Builder(access = AccessLevel.PACKAGE)
         public Time(LocalDate date, LocalTime startTime, Integer durationMinutes) {
             this.date = date;
             this.startTime = startTime;
             this.durationMinutes = durationMinutes;
         }
     }
-
 }
+

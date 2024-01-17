@@ -1,4 +1,4 @@
-package monitoring.api.dto;
+package monitoring.api.record;
 
 import lombok.*;
 
@@ -18,7 +18,7 @@ public class RecordsSearchCond {
 
 
     //public for ModelAttribute binding
-    @Builder
+    @Builder(access = AccessLevel.PACKAGE)
     public RecordsSearchCond(String action, String memo, LocalDate date, LocalTime time) {
         this.action = action;
         this.memo = memo;

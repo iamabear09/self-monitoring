@@ -1,7 +1,6 @@
-package monitoring.api;
+package monitoring.api.record;
 
 import lombok.extern.slf4j.Slf4j;
-import monitoring.api.dto.*;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
