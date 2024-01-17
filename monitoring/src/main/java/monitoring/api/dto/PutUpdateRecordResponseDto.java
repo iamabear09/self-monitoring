@@ -8,8 +8,8 @@ import java.util.Optional;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
-@EqualsAndHashCode  //for test
-@ToString //for test
+@EqualsAndHashCode
+@ToString
 public class PutUpdateRecordResponseDto {
 
     private RecordDto updatedRecord;
@@ -20,8 +20,7 @@ public class PutUpdateRecordResponseDto {
     private List<RecordDto> affectedRecords;
 
 
-    @Builder
-    private PutUpdateRecordResponseDto(RecordDto updatedRecord, List<Long> deleteRecordsIds, List<RecordDto> affectedRecords) {
+    public PutUpdateRecordResponseDto(RecordDto updatedRecord, List<Long> deleteRecordsIds, List<RecordDto> affectedRecords) {
         this.updatedRecord = updatedRecord;
         this.deleteRecordsIds = Optional
                 .ofNullable(deleteRecordsIds)

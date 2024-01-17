@@ -4,13 +4,14 @@ import lombok.*;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
-@EqualsAndHashCode  //for test
-@ToString   //for test
+@EqualsAndHashCode
+@ToString
 public class RecordDto {
 
     private Long recordId;
@@ -20,39 +21,38 @@ public class RecordDto {
     private Integer timeRecordsNum;
     private List<Time> timeRecords;
 
-    @Builder
-    private RecordDto(Long recordId, String action, String memo, List<Time> timeRecords) {
+    public RecordDto(Long recordId, String action, String memo, List<Time> timeRecords) {
         this.recordId = recordId;
         this.action = action;
         this.memo = memo;
-        this.timeRecords = timeRecords;
-        if (timeRecords != null) {
-            this.timeRecordsNum = timeRecords.size();
-        }
+        this.timeRecords = Optional.ofNullable(timeRecords)
+                .orElse(new ArrayList<>());
+        this.timeRecordsNum = this.timeRecords.size();
     }
 
 
     // To save time records
     @Getter
     @NoArgsConstructor(access = AccessLevel.PRIVATE)
-    @EqualsAndHashCode  //for test
-    @ToString   //for test
+    @EqualsAndHashCode
+    @ToString
     public static class Time {
         private Long timeId;
         private LocalDate date;
         private LocalTime startTime;
         private LocalTime endTime;
-        private Long durationMinutes;
+        private Integer durationMinutes;
 
-        @Builder
-        private Time(Long timeId, LocalDate date, LocalTime startTime, Long durationMinutes) {
+        public Time(Long timeId, LocalDate date, LocalTime startTime, Integer durationMinutes) {
             this.timeId = timeId;
             this.date = date;
             this.startTime = startTime;
-            this.durationMinutes = Optional.ofNullable(durationMinutes).orElse(0L);
-            if (startTime != null) {
-                this.endTime = startTime.plusMinutes(this.durationMinutes);
-            }
+            this.durationMinutes = Optional
+                    .ofNullable(durationMinutes)
+                    .orElse(0);
+            this.endTime = Optional.ofNullable(startTime).map(t -> t.plusMinutes(this.durationMinutes))
+                    .map(t -> t.plusMinutes(this.durationMinutes))
+                    .orElse(null);
         }
     }
 }

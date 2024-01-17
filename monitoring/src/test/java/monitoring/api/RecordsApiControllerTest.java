@@ -30,7 +30,6 @@ class RecordsApiControllerTest {
     @Autowired
     private ObjectMapper objectMapper;
 
-
     @Autowired
     private MockMvc mockMvc;
 
@@ -41,17 +40,15 @@ class RecordsApiControllerTest {
         //given
         String action = "공부";
         String memo = "API 설계";
-
         LocalDate date = LocalDate.of(2024, 1, 12);
         LocalTime startTime = LocalTime.of(11, 10);
-        Long durationMinutes = 30L;
+        Integer durationMinutes = 30;
 
         List<CreateRecordRequestDto.Time> timeRecords = List.of(CreateRecordRequestDto.Time.builder()
-                .date(date)
-                .startTime(startTime)
-                .durationMinutes(durationMinutes)
-                .build());
-
+                        .date(date)
+                        .startTime(startTime)
+                        .durationMinutes(durationMinutes)
+                        .build());
         CreateRecordRequestDto request = CreateRecordRequestDto.builder()
                 .action(action)
                 .memo(memo)
@@ -63,16 +60,16 @@ class RecordsApiControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request)));
 
-
         //then
-        resultActions
-                .andExpect(status().isOk())
+        resultActions.andExpect(status().isOk())
                 .andDo(print());
 
-        CreateRecordResponseDto response
-                = objectMapper.readValue(resultActions.andReturn().getResponse().getContentAsString(StandardCharsets.UTF_8), CreateRecordResponseDto.class);
+        RecordDto response = objectMapper.readValue(resultActions.andReturn().getResponse().getContentAsString(StandardCharsets.UTF_8), RecordDto.class);
 
-        assertThat(response.getRecordId()).isEqualTo(1L);
+        Long timeId = 1L;
+        Long recordId = 1L;
+        RecordDto expected = new RecordDto(recordId, action, memo, List.of(new RecordDto.Time(timeId, date, startTime, durationMinutes)));
+        assertThat(response).isEqualTo(expected);
     }
 
     @Test
@@ -87,36 +84,21 @@ class RecordsApiControllerTest {
                 = mockMvc.perform(get("/api/records/{id}", recordId));
 
         //then
-
-        //expected mock date
-        Long timeId = 1L;
-        LocalDate date = LocalDate.of(2024, 1, 13);
-        LocalTime startTime = LocalTime.of(13, 10);
-        Long durationMinutes = 60L;
-
-        List<RecordDto.Time> timeRecords = List.of(RecordDto.Time.builder()
-                .timeId(timeId)
-                .date(date)
-                .startTime(startTime)
-                .durationMinutes(durationMinutes)
-                .build());
-
-        String action = "운동";
-        String meno = "헬스장";
-
-
         resultActions
                 .andExpect(status().isOk())
                 .andDo(print());
 
         RecordDto response = objectMapper.readValue(resultActions.andReturn().getResponse().getContentAsString(StandardCharsets.UTF_8), RecordDto.class);
-        RecordDto expected = RecordDto.builder()
-                        .recordId(recordId)
-                        .action(action)
-                        .memo(meno)
-                        .timeRecords(timeRecords)
-                        .build();
 
+        //expected mock date
+        Long timeId = 1L;
+        LocalDate date = LocalDate.of(2024, 1, 13);
+        LocalTime startTime = LocalTime.of(13, 10);
+        Integer durationMinutes = 60;
+        String action = "운동";
+        String memo = "헬스장";
+
+        RecordDto expected = new RecordDto(recordId, action, memo, List.of(new RecordDto.Time(timeId, date, startTime, durationMinutes)));
         assertThat(response).isEqualTo(expected);
     }
 
@@ -143,31 +125,21 @@ class RecordsApiControllerTest {
                 .andExpect(status().isOk())
                 .andDo(print());
 
-        //expected mock data1
+        SearchRecordsResponseDto response = objectMapper.readValue(resultActions.andReturn().getResponse().getContentAsString(StandardCharsets.UTF_8), SearchRecordsResponseDto.class);
+
+        //mock data1
         Long recordId1 = 1L;
         String action1 = "운동";
         String meno1 = "헬스장";
-
         Long timeId1 = 1L;
         LocalDate date1 = LocalDate.of(2024, 1, 13);
         LocalTime startTime1 = LocalTime.of(13, 10);
-        Long durationMinutes1 = 60L;
+        Integer durationMinutes1 = 60;
 
-        List<RecordDto.Time> timeRecords1 = List.of(RecordDto.Time.builder()
-                .timeId(timeId1)
-                .date(date1)
-                .startTime(startTime1)
-                .durationMinutes(durationMinutes1)
-                .build());
+        List<RecordDto.Time> timeRecords1 = List.of(new RecordDto.Time(timeId1, date1, startTime1, durationMinutes1));
+        RecordDto recordDto1 = new RecordDto(recordId1, action1, meno1, timeRecords1);
 
-        RecordDto recordDto1 = RecordDto.builder()
-                .recordId(recordId1)
-                .action(action1)
-                .memo(meno1)
-                .timeRecords(timeRecords1)
-                .build();
-
-        //expected mock data2
+        //mock data2
         Long recordId2 = 2L;
         String action2 = "공부";
         String meno2 = "API 설계";
@@ -175,30 +147,12 @@ class RecordsApiControllerTest {
         Long timeId2 = 2L;
         LocalDate date2 = LocalDate.of(2024, 1, 11);
         LocalTime startTime2 = LocalTime.of(13, 10);
-        Long durationMinutes2 = 60L;
+        Integer durationMinutes2 = 60;
+        List<RecordDto.Time> timeRecords2 = List.of(new RecordDto.Time(timeId2, date2, startTime2, durationMinutes2));
+        RecordDto recordDto2 = new RecordDto(recordId2, action2, meno2, timeRecords2);
 
-        List<RecordDto.Time> timeRecords2 = List.of(RecordDto.Time.builder()
-                .timeId(timeId2)
-                .date(date2)
-                .startTime(startTime2)
-                .durationMinutes(durationMinutes2)
-                .build());
 
-        RecordDto recordDto2 = RecordDto.builder()
-                .recordId(recordId2)
-                .action(action2)
-                .memo(meno2)
-                .timeRecords(timeRecords2)
-                .build();
-
-        SearchRecordsResponseDto expected = SearchRecordsResponseDto.builder()
-                .records(List.of(recordDto1, recordDto2))
-                .build();
-
-        String contentAsString = resultActions.andReturn().getResponse().getContentAsString(StandardCharsets.UTF_8);
-        SearchRecordsResponseDto response = objectMapper.readValue(contentAsString, SearchRecordsResponseDto.class);
-
-        assertThat(response).isEqualTo(expected);
+        assertThat(response).isEqualTo(new SearchRecordsResponseDto(List.of(recordDto1, recordDto2)));
     }
 
 
@@ -213,7 +167,7 @@ class RecordsApiControllerTest {
 
         LocalDate date = LocalDate.of(2024, 1, 13);
         LocalTime startTime = LocalTime.of(13, 10);
-        Long durationMinutes = 60L;
+        Integer durationMinutes = 60;
 
         List<PatchUpdateRecordRequestDto.Time> timeRecords = List.of(PatchUpdateRecordRequestDto.Time.builder()
                 .date(date)
@@ -227,7 +181,6 @@ class RecordsApiControllerTest {
                 .timeRecords(timeRecords)
                 .build();
 
-
         //when
         ResultActions resultActions
                 = mockMvc.perform(patch("/api/records/{id}", id)
@@ -239,88 +192,13 @@ class RecordsApiControllerTest {
                 .andExpect(status().isOk())
                 .andDo(print());
 
-
         RecordDto response = objectMapper.readValue(resultActions.andReturn().getResponse().getContentAsString(StandardCharsets.UTF_8), RecordDto.class);
 
         Long timeId = 1L;
-        List<RecordDto.Time> expectedTimeRecords = request.getTimeRecords().stream()
-                .map(time -> RecordDto.Time.builder()
-                        .timeId(timeId)
-                        .date(time.getDate())
-                        .startTime(time.getStartTime())
-                        .durationMinutes(time.getDurationMinutes())
-                        .build())
-                .toList();
-        RecordDto expected = RecordDto.builder()
-                .recordId(id)
-                .action(action)
-                .memo(memo)
-                .timeRecords(expectedTimeRecords)
-                .build();
+        RecordDto expected = new RecordDto(id, action, memo, List.of(new RecordDto.Time(timeId, date, startTime, durationMinutes)));
 
         assertThat(response).isEqualTo(expected);
     }
-
-
-    @Test
-    @DisplayName("Patch 를 통한 Record 특정 필드 수정 요청 - 성공")
-    void updatePartOfRecordsByPatch() throws Exception {
-
-        //given
-        Long id = 1L;
-//        String action = "운동";
-//        String memo = "헬스장";
-
-        LocalDate date = LocalDate.of(2024, 1, 13);
-        LocalTime startTime = LocalTime.of(13, 10);
-        Long durationMinutes = 60L;
-
-        List<PatchUpdateRecordRequestDto.Time> timeRecords = List.of(PatchUpdateRecordRequestDto.Time.builder()
-                .date(date)
-                .startTime(startTime)
-                .durationMinutes(durationMinutes)
-                .build());
-
-        PatchUpdateRecordRequestDto request = PatchUpdateRecordRequestDto.builder()
-//                .action(action)
-//                .memo(memo)
-                .timeRecords(timeRecords)
-                .build();
-
-
-        //when
-        ResultActions resultActions
-                = mockMvc.perform(patch("/api/records/{id}", id)
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(request)));
-
-        //then
-        resultActions
-                .andExpect(status().isOk())
-                .andDo(print());
-
-
-        RecordDto response = objectMapper.readValue(resultActions.andReturn().getResponse().getContentAsString(StandardCharsets.UTF_8), RecordDto.class);
-
-        Long timeId = 1L;
-        List<RecordDto.Time> expectedTimeRecords = request.getTimeRecords().stream()
-                .map(time -> RecordDto.Time.builder()
-                        .timeId(timeId)
-                        .date(time.getDate())
-                        .startTime(time.getStartTime())
-                        .durationMinutes(time.getDurationMinutes())
-                        .build())
-                .toList();
-        RecordDto expected = RecordDto.builder()
-                .recordId(id)
-//                .action(action)
-//                .memo(memo)
-                .timeRecords(expectedTimeRecords)
-                .build();
-
-        assertThat(response).isEqualTo(expected);
-    }
-
 
     @Test
     @DisplayName("Put 을 통한 Record 수정 요청 - 성공")
@@ -333,7 +211,7 @@ class RecordsApiControllerTest {
 
         LocalDate date = LocalDate.of(2024, 1, 13);
         LocalTime startTime = LocalTime.of(13, 10);
-        Long durationMinutes = 60L;
+        Integer durationMinutes = 60;
 
         List<PutUpdateRecordRequestDto.Time> timeRecords = List.of(PutUpdateRecordRequestDto.Time.builder()
                 .date(date)
@@ -363,51 +241,15 @@ class RecordsApiControllerTest {
 
 
         //mock data
-        RecordDto.Time time1 = RecordDto.Time.builder()
-                .timeId(5L)
-                .date(LocalDate.of(2024, 1, 1))
-                .startTime(LocalTime.of(10, 10))
-                .durationMinutes(30L)
-                .build();
+        RecordDto.Time time1 = new RecordDto.Time(5L, LocalDate.of(2024, 1, 1), LocalTime.of(10, 10), 30);
+        RecordDto.Time time2 = new RecordDto.Time(6L, LocalDate.of(2024, 1, 1), LocalTime.of(11, 10), 60);
 
-        RecordDto.Time time2 = RecordDto.Time.builder()
-                .timeId(6L)
-                .date(LocalDate.of(2024, 1, 1))
-                .startTime(LocalTime.of(11, 10))
-                .durationMinutes(30L)
-                .build();
-
-        RecordDto affectedRecord = RecordDto.builder()
-                .recordId(id)
-                .action("운동")
-                .memo("벤치프레스")
-                .timeRecords(List.of(time1, time2))
-                .build();
-
-        Long timeId = 1L;
-        List<RecordDto.Time> expectedTimeRecords = request.getTimeRecords().stream()
-                .map(time -> RecordDto.Time.builder()
-                        .timeId(timeId)
-                        .date(time.getDate())
-                        .startTime(time.getStartTime())
-                        .durationMinutes(time.getDurationMinutes())
-                        .build())
-                .toList();
-        RecordDto updatedRecord = RecordDto.builder()
-                .recordId(id)
-                .action(action)
-                .memo(memo)
-                .timeRecords(expectedTimeRecords)
-                .build();
-
-
+        RecordDto affectedRecord = new RecordDto(11L, "운동", "벤치프레스", List.of(time1, time2));
         List<Long> deleteRecordsIds = List.of(10L, 11L, 12L);
 
-        PutUpdateRecordResponseDto expected = PutUpdateRecordResponseDto.builder()
-                .updatedRecord(updatedRecord)
-                .deleteRecordsIds(deleteRecordsIds)
-                .affectedRecords(List.of(affectedRecord))
-                .build();
+        Long timeId = 1L;
+        RecordDto updatedRecords = new RecordDto(id, action, memo, List.of(new RecordDto.Time(timeId, date, startTime, durationMinutes)));
+        PutUpdateRecordResponseDto expected = new PutUpdateRecordResponseDto(updatedRecords, deleteRecordsIds, List.of(affectedRecord));
 
         assertThat(response).isEqualTo(expected);
     }
@@ -418,9 +260,25 @@ class RecordsApiControllerTest {
         //given
         Long recordId = 1L;
 
-        //when & then
-        mockMvc.perform(delete("/api/records/{id}", recordId))
-                .andExpect(status().isNoContent());
+        //when
+        ResultActions resultActions = mockMvc.perform(delete("/api/records/{id}", recordId));
+
+
+        //then
+        resultActions.andExpect(status().isOk());
+        RecordDto response = objectMapper.readValue(resultActions.andReturn().getResponse().getContentAsString(StandardCharsets.UTF_8), RecordDto.class);
+
+        //mock data
+        String action = "운동";
+        String meno = "헬스장";
+
+        Long timeId = 1L;
+        LocalDate date = LocalDate.of(2024, 1, 13);
+        LocalTime startTime = LocalTime.of(13, 10);
+        Integer durationMinutes = 60;
+
+        RecordDto expected = new RecordDto(recordId, action, meno, List.of(new RecordDto.Time(timeId, date, startTime, durationMinutes)));
+        assertThat(response).isEqualTo(expected);
     }
 
 }
