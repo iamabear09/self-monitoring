@@ -7,20 +7,17 @@ import lombok.ToString;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @Getter
 @EqualsAndHashCode
 @ToString
 public class Record {
 
-    private final Long recordId;
-    private final String action;
-    private final String memo;
-    private final List<Time> timeRecords = new ArrayList<>();
+    private Long recordId;
+    private String action;
+    private String memo;
+    private final Set<Time> timeRecords = new HashSet<>();
 
     @Builder
     public Record(Long recordId, String action, String memo) {
@@ -29,30 +26,50 @@ public class Record {
         this.memo = memo;
     }
 
-    public static Record from(Long id, Record recordWithoutId) {
-        return Record.builder()
-                .recordId(id)
-                .action(recordWithoutId.getAction())
-                .memo(recordWithoutId.getMemo())
-                .build();
+    public void addTimeRecord(Record.Time time) {
+        if (time.record != null) {
+            time.record.delete(time);
+        }
+
+        timeRecords.add(time);
+        time.record = this;
     }
 
-    public List<Time> getTimeRecords() {
-        return Collections.unmodifiableList(timeRecords);
+    /**
+     * If timeRecord has Record, before add timeRecord,
+     * it first disconnect a link between timeRecord and Record.
+     * And then timeRecord is linked to new Record.
+     */
+    public void addTimeRecords(Set<Record.Time> timeRecords) {
+        //잘못 장석하면 Concurrent Modification Error
+        Set<Time> forConcurrentModification = Set.copyOf(timeRecords);
+        forConcurrentModification.forEach(this::addTimeRecord);
+    }
+
+    public Set<Record.Time> getTimeRecords() {
+        return Collections.unmodifiableSet(timeRecords);
+    }
+
+    public void delete(Record.Time time) {
+        timeRecords.remove(time);
+    }
+
+    public void updateContents(String action, String memo) {
+        this.action = action;
+        this.memo = memo;
     }
 
     @Getter
-    @EqualsAndHashCode
+    @EqualsAndHashCode(exclude = "record")
     @ToString(exclude = "record")
     public static class Time {
 
-        private final Long timeId;
-        private final LocalDate date;
-        private final LocalTime startTime;
-        private final LocalTime endTime;
-        private final Integer durationMinutes;
-
-        private final Record record;
+        private Long timeId;
+        private LocalDate date;
+        private LocalTime startTime;
+        private LocalTime endTime;
+        private Integer durationMinutes;
+        private Record record;
 
         @Builder
         public Time(Long timeId, LocalDate date, LocalTime startTime, Integer durationMinutes, Record record) {
@@ -61,22 +78,7 @@ public class Record {
             this.startTime = startTime;
             this.durationMinutes = durationMinutes;
             this.endTime = startTime.plusMinutes(durationMinutes);
-
             this.record = record;
-            // 양방향 연관관계 설정
-            Optional.ofNullable(record)
-                    .ifPresent(r -> r.timeRecords.add(this));
-        }
-
-
-        public static Time from(Long id, Record record, Time timeWithoutIdAndRecord) {
-            return Time.builder()
-                    .timeId(id)
-                    .date(timeWithoutIdAndRecord.getDate())
-                    .startTime(timeWithoutIdAndRecord.getStartTime())
-                    .durationMinutes(timeWithoutIdAndRecord.getDurationMinutes())
-                    .record(record)
-                    .build();
         }
     }
 }
