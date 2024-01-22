@@ -31,6 +31,7 @@ public class Record {
             time.record.delete(time);
         }
 
+        //양방향 연관관계 설정
         timeRecords.add(time);
         time.record = this;
     }
