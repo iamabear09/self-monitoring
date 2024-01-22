@@ -1,117 +1,111 @@
 package monitoring.infra.fake;
 
 import monitoring.domain.Record;
+import monitoring.service.TimeRecordsRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.List;
+import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.SoftAssertions.assertSoftly;
+import static org.assertj.core.groups.Tuple.tuple;
 
 class FakeTimeRecordsRepositoryTest {
 
-    FakeTimeRecordsRepository fakeTimeRecordsRepository = new FakeTimeRecordsRepository();
+    TimeRecordsRepository timeRecordsRepository = new FakeTimeRecordsRepository();
 
     @Test
-    @DisplayName("Time 저장 시 기존 Time 과 record 와 연관관계는 끊어지고 저장 시 만들어지는 새로운 Time 과 연관관계가 생성된다.")
-    void save_RecordDependency() {
-
+    @DisplayName("Time 을 저장할 수 있다.")
+    void save_Time() {
         //given
         String action = "공부";
         String memo = "코딩테스트";
-        long recordId = 1L;
-        Record record = Record.builder()
-                .recordId(recordId)
-                .action(action)
-                .memo(memo)
-                .build();
+        Record record = new Record(null, action, memo);
 
         LocalDate date = LocalDate.of(2024, 1, 1);
         LocalTime startTime = LocalTime.of(10, 10);
         int durationMinutes = 30;
-        Record.Time time = Record.Time.builder()
-                .date(date)
-                .startTime(startTime)
-                .durationMinutes(durationMinutes)
-                .build();
-
-        record.addTimeRecord(time);
+        Record.Time time = new Record.Time(null, date, startTime, durationMinutes, record);
 
         //when
-        Record.Time savedTime = fakeTimeRecordsRepository.save(time);
+        Record.Time savedTime = timeRecordsRepository.save(time);
+        Record.Time findTime = timeRecordsRepository.findById(savedTime.getTimeId()).get();
 
         //then
-        assertThat(savedTime).isNotSameAs(time);
+        assertThat(savedTime).isEqualTo(findTime);
 
-        assertSoftly(softAssertions -> {
-            softAssertions.assertThat(savedTime.getTimeId()).isPositive();
-            softAssertions.assertThat(savedTime.getDate()).isEqualTo(date);
-            softAssertions.assertThat(savedTime.getStartTime()).isEqualTo(startTime);
-            softAssertions.assertThat(savedTime.getDurationMinutes()).isEqualTo(durationMinutes);
-            softAssertions.assertThat(savedTime.getRecord()).isEqualTo(record);
-        });
-
-        assertThat(record.getTimeRecords())
-                .doesNotContain(time);
-
-        assertThat(record.getTimeRecords())
-                .hasSize(1)
-                .contains(savedTime);
     }
 
     @Test
     @DisplayName("Time 을 업데이트 할 수 있다.")
-    void update() {
+    void save_update() {
         //given
         String action = "공부";
         String memo = "코딩테스트";
-        long recordId = 1L;
-        Record record = Record.builder()
-                .recordId(recordId)
-                .action(action)
-                .memo(memo)
-                .build();
+        Record record = new Record(null, action, memo);
 
         LocalDate date = LocalDate.of(2024, 1, 1);
         LocalTime startTime = LocalTime.of(10, 10);
         int durationMinutes = 30;
-        Record.Time oldTime = Record.Time.builder()
-                .date(date)
-                .startTime(startTime)
-                .durationMinutes(durationMinutes)
-                .build();
+        Record.Time time = new Record.Time(1L, date, startTime, durationMinutes, record);
 
-        record.addTimeRecord(oldTime);
-        Record.Time savedTime = fakeTimeRecordsRepository.save(oldTime);
+        Record.Time savedTime = timeRecordsRepository.save(time);
 
 
-        LocalDate updateDate = LocalDate.of(2024, 5, 5);
-        LocalTime updateStartTime = LocalTime.of(3, 20);
+        LocalDate updateData = LocalDate.of(2024, 5, 2);
+        LocalTime updateStartTime = LocalTime.of(10, 30);
         int updateDurationMinutes = 50;
-        Record.Time updateTimeData = Record.Time.builder()
-                .timeId(savedTime.getTimeId())
-                .date(updateDate)
-                .startTime(updateStartTime)
-                .durationMinutes(updateDurationMinutes)
-                .build();
-        record.addTimeRecord(updateTimeData);
+        Record.Time updateTime = new Record.Time(1L, updateData, updateStartTime, updateDurationMinutes, record);
 
         //when
-        Record.Time updatedTime = fakeTimeRecordsRepository.update(updateTimeData);
+        Record.Time updatedTime = timeRecordsRepository.save(updateTime);
+        Record.Time findTime = timeRecordsRepository.findById(savedTime.getTimeId()).get();
 
         //then
-        assertThat(updatedTime.getTimeId()).isEqualTo(savedTime.getTimeId());
-        assertThat(updatedTime.getDate()).isEqualTo(updateDate);
-        assertThat(updatedTime.getStartTime()).isEqualTo(updateStartTime);
-        assertThat(updatedTime.getDurationMinutes()).isEqualTo(updateDurationMinutes);
-        assertThat(updatedTime.getRecord()).isEqualTo(record);
-
-        assertThat(record.getTimeRecords())
-                .hasSize(1)
-                .doesNotContain(oldTime)
-                .contains(updatedTime);
+        assertThat(findTime).isSameAs(updatedTime);
     }
 
+    @Test
+    @DisplayName("여러 Time 을 한번에 저장할 수 있다.")
+    void saveAll() {
+        //given
+        String action = "공부";
+        String memo = "코딩테스트";
+        Record record = new Record(null, action, memo);
+
+        LocalDate date1 = LocalDate.of(2024, 1, 1);
+        LocalTime startTime1 = LocalTime.of(10, 10);
+        int durationMinutes1 = 30;
+        Record.Time time1 = new Record.Time(null, date1, startTime1, durationMinutes1, record);
+
+        LocalDate date2 = LocalDate.of(2024, 5, 19);
+        LocalTime startTime2 = LocalTime.of(3, 11);
+        int durationMinutes2 = 60;
+        Record.Time time2 = new Record.Time(null, date2, startTime2, durationMinutes2, record);
+
+        //when
+        Set<Record.Time> times = timeRecordsRepository.saveAll(Set.of(time1, time2));
+
+        //then
+        List<Record.Time> findTimes = times.stream()
+                .map(Record.Time::getTimeId)
+                .map(i -> timeRecordsRepository.findById(i).get())
+                .toList();
+
+        assertThat(findTimes)
+                .extracting("timeId")
+                .isNotNull();
+
+        assertThat(findTimes)
+                .hasSize(2)
+                .extracting("date", "startTime", "durationMinutes")
+                .contains(
+                        tuple(date1, startTime1, durationMinutes1),
+                        tuple(date2, startTime2, durationMinutes2)
+                );
+    }
 }
+

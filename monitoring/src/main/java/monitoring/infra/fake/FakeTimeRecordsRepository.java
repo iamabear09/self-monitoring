@@ -4,6 +4,7 @@ import monitoring.domain.Record;
 import monitoring.service.TimeRecordsRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -18,27 +19,22 @@ public class FakeTimeRecordsRepository implements TimeRecordsRepository {
     private final AtomicLong idGenerator = new AtomicLong(0L);
 
     @Override
-    public Record.Time save(Record.Time time) {
+    public Record.Time save(Record.Time timeData) {
 
-        if (time.getTimeId() != null && time.getTimeId() > 0L) {
-            throw new IllegalArgumentException("이미 존재하는 데이터입니다.");}
+        if (timeData.getTimeId() == null || timeData.getTimeId() == 0L) {
+            Record.Time savedTime = timeData.toTimeWith(idGenerator.incrementAndGet());
+            storage.put(savedTime.getTimeId(), savedTime);
+            return savedTime;
+        }
 
-        Record.Time savedTime = Record.Time.builder()
-                .timeId(idGenerator.incrementAndGet())
-                .date(time.getDate())
-                .startTime(time.getStartTime())
-                .durationMinutes(time.getDurationMinutes())
-                .build();
-
-        //record 의 연관관계를 새로운 객체로 변경
-        time.getRecord().delete(time);
-        time.getRecord().addTimeRecord(savedTime);
-
-        storage.put(savedTime.getTimeId(), savedTime);
-        return savedTime;
+        Record.Time updatedTime = timeData.toTimeWith(timeData.getTimeId());
+        storage.put(updatedTime.getTimeId(), updatedTime);
+        return updatedTime;
     }
 
+    @Override
     public Set<Record.Time> saveAll(Set<Record.Time> times) {
+
         return Set.copyOf(times).stream()
                 .map(this::save)
                 .collect(Collectors.toSet());
@@ -50,29 +46,21 @@ public class FakeTimeRecordsRepository implements TimeRecordsRepository {
     }
 
     @Override
-    public Record.Time update(Record.Time time) {
+    public Set<Record.Time> deleteAll(Set<Record.Time> times) {
+        List<Long> ids = times.stream()
+                .map(Record.Time::getTimeId)
+                .toList();
 
-        if (time.getTimeId() == null || time.getTimeId() == 0L) { throw new IllegalArgumentException("존재하지 않는 데이터 입니다."); }
+        return ids.stream()
+                .map(this::delete)
+                .collect(Collectors.toSet());
+    }
 
-        if (time.getRecord() == null) { throw new IllegalArgumentException("time 의 record 값은 필수입니다.");}
+    @Override
+    public Record.Time delete(Long id) {
+        if (id == null || id == 0L) { throw new IllegalArgumentException("존재하지 않는 데이터 입니다."); }
 
-        //기존 Record 에서 삭제될 Time Record 삭제
-        Record.Time oldTime = storage.get(time.getTimeId());
-        oldTime.getRecord().delete(oldTime);
-
-        time.getRecord().delete(time);
-
-        Record.Time updatedTimeRecord = Record.Time.builder()
-                .timeId(time.getTimeId())
-                .date(time.getDate())
-                .startTime(time.getStartTime())
-                .durationMinutes(time.getDurationMinutes())
-                .build();
-
-        time.getRecord().addTimeRecord(updatedTimeRecord);
-
-        storage.put(updatedTimeRecord.getTimeId(), updatedTimeRecord);
-        return updatedTimeRecord;
+        return storage.remove(id);
     }
 
 }

@@ -1,6 +1,9 @@
 package monitoring.api.record;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import monitoring.domain.Record;
+import monitoring.service.RecordsService;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
@@ -10,18 +13,18 @@ import java.util.List;
 @Slf4j
 @RestController
 @RequestMapping("/api/records")
+@RequiredArgsConstructor
 public class RecordsApiController {
+
+    private final RecordsService recordsService;
 
     @PostMapping
     public RecordDto createRecord(@RequestBody CreateRecordRequestDto request) {
 
-        Long timeId = 1L;
-        List<RecordDto.Time> timeRecords = request.getTimeRecords().stream()
-                .map(r -> new RecordDto.Time(timeId, r.getDate(), r.getStartTime(), r.getDurationMinutes()))
-                .toList();
-
-        return new RecordDto(1L, request.getAction(), request.getMemo(), timeRecords);
+        Record savedRecord = recordsService.create(request.toRecord());
+        return RecordDto.from(savedRecord);
     }
+
 
     @GetMapping("/{id}")
     public RecordDto getRecord(@PathVariable Long id) {

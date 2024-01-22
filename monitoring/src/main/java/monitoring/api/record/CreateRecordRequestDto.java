@@ -1,10 +1,13 @@
 package monitoring.api.record;
 
 import lombok.*;
+import monitoring.domain.Record;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
@@ -22,6 +25,17 @@ public class CreateRecordRequestDto {
         this.timeRecords = timeRecords;
     }
 
+    public Record toRecord() {
+        Record record = new Record(null, action, memo);
+
+        //새로운 Record 에 Time 연결
+        timeRecords.forEach(t -> {
+            new Record.Time(null, t.getDate(), t.getStartTime(), t.getDurationMinutes(), record);
+        });
+
+        return record;
+    }
+
     @Getter
     @NoArgsConstructor(access = AccessLevel.PRIVATE)
     public static class Time {
@@ -36,4 +50,5 @@ public class CreateRecordRequestDto {
             this.durationMinutes = durationMinutes;
         }
     }
+
 }

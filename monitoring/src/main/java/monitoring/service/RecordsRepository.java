@@ -11,6 +11,5 @@ public interface RecordsRepository {
 
     Optional<Record> findById(Long id);
 
-    Record update(Record record);
 }
 

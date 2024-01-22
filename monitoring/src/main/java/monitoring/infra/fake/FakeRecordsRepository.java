@@ -1,50 +1,26 @@
 package monitoring.infra.fake;
 
-import lombok.RequiredArgsConstructor;
 import monitoring.domain.Record;
 import monitoring.service.RecordsRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
-import java.util.stream.Collectors;
 
 @Repository
 public class FakeRecordsRepository implements RecordsRepository {
     private final Map<Long, Record> storage = new ConcurrentHashMap<>();
     private final AtomicLong idGenerator = new AtomicLong(0L);
-
     private final FakeTimeRecordsRepository fakeTimeRecordsRepository;
+
+
     @Autowired
     public FakeRecordsRepository(FakeTimeRecordsRepository fakeTimeRecordsRepository) {
         this.fakeTimeRecordsRepository = fakeTimeRecordsRepository;
-    }
-
-    @Override
-    public Record save(Record record) {
-        if (record.getRecordId() != null && record.getRecordId() > 0L) {
-            throw new IllegalArgumentException("이미 존재하는 데이터입니다.");
-        }
-
-        Record savedRecord = Record.builder()
-                .recordId(idGenerator.incrementAndGet())
-                .action(record.getAction())
-                .memo(record.getMemo())
-                .build();
-
-        storage.put(savedRecord.getRecordId(), savedRecord);
-
-        //저장을 먼저 한 후에
-        Set<Record.Time> times = fakeTimeRecordsRepository.saveAll(record.getTimeRecords());
-
-        //연관관계 설정
-        savedRecord.addTimeRecords(times);
-
-        return savedRecord;
     }
 
     @Override
@@ -53,23 +29,25 @@ public class FakeRecordsRepository implements RecordsRepository {
     }
 
     @Override
-    public Record update(Record record) {
-        if (record.getRecordId() == null || record.getRecordId() == 0L) {
-            throw new IllegalArgumentException("존재하지 않는 데이터입니다.");
+    public Record save(Record recordData) {
+
+        if (recordData.getRecordId() == null || recordData.getRecordId() == 0L) {
+            Record saveRecord = recordData.toRecordWith(idGenerator.incrementAndGet());
+            storage.put(saveRecord.getRecordId(), saveRecord);
+
+            fakeTimeRecordsRepository.saveAll(saveRecord.getTimeRecords());
+            return saveRecord;
         }
 
-        Record oldRecord = storage.get(record.getRecordId());
+        //기존 Time Record 삭제
+        Record oldRecord = storage.get(recordData.getRecordId());
+        fakeTimeRecordsRepository.deleteAll(oldRecord.getTimeRecords());
 
-        Record updatedRecord = Record.builder()
-                .recordId(record.getRecordId())
-                .action(record.getAction())
-                .memo(record.getMemo())
-                .build();
+        Record updateRecord = recordData.toRecordWith(recordData.getRecordId());
+        storage.put(updateRecord.getRecordId(), updateRecord);
 
-        updatedRecord.addTimeRecords(oldRecord.getTimeRecords());
-
-        storage.replace(updatedRecord.getRecordId(), updatedRecord);
-        return updatedRecord;
+        fakeTimeRecordsRepository.saveAll(updateRecord.getTimeRecords());
+        return updateRecord;
     }
 
 
