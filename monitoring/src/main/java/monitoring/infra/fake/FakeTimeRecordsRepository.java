@@ -4,11 +4,12 @@ import monitoring.domain.Record;
 import monitoring.service.TimeRecordsRepository;
 import org.springframework.stereotype.Repository;
 
-import java.time.LocalTime;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.stream.Collectors;
 
 @Repository
 public class FakeTimeRecordsRepository implements TimeRecordsRepository {
@@ -22,8 +23,6 @@ public class FakeTimeRecordsRepository implements TimeRecordsRepository {
         if (time.getTimeId() != null && time.getTimeId() > 0L) {
             throw new IllegalArgumentException("이미 존재하는 데이터입니다.");}
 
-        time.getRecord().delete(time);
-
         Record.Time savedTime = Record.Time.builder()
                 .timeId(idGenerator.incrementAndGet())
                 .date(time.getDate())
@@ -31,9 +30,18 @@ public class FakeTimeRecordsRepository implements TimeRecordsRepository {
                 .durationMinutes(time.getDurationMinutes())
                 .build();
 
+        //record 의 연관관계를 새로운 객체로 변경
+        time.getRecord().delete(time);
         time.getRecord().addTimeRecord(savedTime);
+
         storage.put(savedTime.getTimeId(), savedTime);
         return savedTime;
+    }
+
+    public Set<Record.Time> saveAll(Set<Record.Time> times) {
+        return Set.copyOf(times).stream()
+                .map(this::save)
+                .collect(Collectors.toSet());
     }
 
     @Override

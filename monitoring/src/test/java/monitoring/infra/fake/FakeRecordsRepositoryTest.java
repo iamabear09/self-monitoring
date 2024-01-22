@@ -1,6 +1,7 @@
 package monitoring.infra.fake;
 
 import monitoring.domain.Record;
+import org.assertj.core.groups.Tuple;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -11,10 +12,11 @@ import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.SoftAssertions.assertSoftly;
+import static org.assertj.core.groups.Tuple.tuple;
 
 class FakeRecordsRepositoryTest {
 
-    FakeRecordsRepository fakeRecordsRepository = new FakeRecordsRepository();
+    FakeRecordsRepository fakeRecordsRepository = new FakeRecordsRepository(new FakeTimeRecordsRepository());
 
     @BeforeEach
     void clearDB() {
@@ -32,45 +34,47 @@ class FakeRecordsRepositoryTest {
                 .memo(memo)
                 .build();
 
+        LocalDate date1 = LocalDate.of(2024, 1, 1);
+        LocalTime startTime1 = LocalTime.of(10, 10);
+        int durationMinutes1 = 30;
+        Record.Time time1 = Record.Time.builder()
+                .date(date1)
+                .startTime(startTime1)
+                .durationMinutes(durationMinutes1)
+                .build();
+
+        LocalDate date2 = LocalDate.of(2024, 5, 5);
+        LocalTime startTime2 = LocalTime.of(5, 5);
+        int durationMinutes2 = 20;
+        Record.Time time2 = Record.Time.builder()
+                .date(date2)
+                .startTime(startTime2)
+                .durationMinutes(durationMinutes2)
+                .build();
+
+        record.addTimeRecords(Set.of(time1, time2));
+
         //when
         Record saveRecord = fakeRecordsRepository.save(record);
 
         //then
         assertSoftly(softly -> {
-            softly.assertThat(saveRecord.getRecordId()).isNotNull();
+            softly.assertThat(saveRecord.getRecordId()).isPositive();
             softly.assertThat(saveRecord.getAction()).isEqualTo(action);
             softly.assertThat(saveRecord.getMemo()).isEqualTo(memo);
         });
-    }
 
-    @Test
-    @DisplayName("Record 저장 시 반환된 객체는 TimeRecord 을 가지고 있지 않다.")
-    void saveRecord_TimeNotSaved() {
-        //given
-        String action = "공부";
-        String memo = "코딩테스트";
-        Record record = Record.builder()
-                .action(action)
-                .memo(memo)
-                .build();
+        assertThat(saveRecord.getTimeRecords())
+                .extracting("timeId")
+                .isNotNull();
 
-        LocalDate date = LocalDate.of(2024, 1, 1);
-        LocalTime startTime = LocalTime.of(10, 10);
-        int durationMinutes = 30;
-
-        Record.Time time = Record.Time.builder()
-                .date(date)
-                .startTime(startTime)
-                .durationMinutes(durationMinutes)
-                .build();
-
-        record.addTimeRecord(time);
-
-        //when
-        Record saveRecord = fakeRecordsRepository.save(record);
-
-        //then
-        assertThat(saveRecord.getTimeRecords()).isEmpty();
+        assertThat(saveRecord.getTimeRecords())
+                .hasSize(2)
+                .extracting("date", "startTime", "durationMinutes", "record")
+                .contains(
+                        tuple(date1, startTime1, durationMinutes1, saveRecord),
+                        tuple(date2, startTime2, durationMinutes2, saveRecord)
+                );
     }
 
     @Test

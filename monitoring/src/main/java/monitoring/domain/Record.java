@@ -70,16 +70,16 @@ public class Record {
         private LocalTime startTime;
         private LocalTime endTime;
         private Integer durationMinutes;
+
         private Record record;
 
         @Builder
-        public Time(Long timeId, LocalDate date, LocalTime startTime, Integer durationMinutes, Record record) {
+        public Time(Long timeId, LocalDate date, LocalTime startTime, Integer durationMinutes) {
             this.timeId = timeId;
             this.date = date;
             this.startTime = startTime;
             this.durationMinutes = durationMinutes;
             this.endTime = startTime.plusMinutes(durationMinutes);
-            this.record = record;
         }
     }
 }

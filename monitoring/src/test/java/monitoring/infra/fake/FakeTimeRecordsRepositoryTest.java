@@ -1,25 +1,23 @@
 package monitoring.infra.fake;
 
 import monitoring.domain.Record;
-import org.assertj.core.api.Assertions;
-import org.assertj.core.api.SoftAssertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
-import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.SoftAssertions.assertSoftly;
-import static org.junit.jupiter.api.Assertions.*;
 
 class FakeTimeRecordsRepositoryTest {
 
     FakeTimeRecordsRepository fakeTimeRecordsRepository = new FakeTimeRecordsRepository();
+
     @Test
-    @DisplayName("Time 을 저장할 수 있다.")
-    void save() {
+    @DisplayName("Time 저장 시 기존 Time 과 record 와 연관관계는 끊어지고 저장 시 만들어지는 새로운 Time 과 연관관계가 생성된다.")
+    void save_RecordDependency() {
+
         //given
         String action = "공부";
         String memo = "코딩테스트";
@@ -37,7 +35,6 @@ class FakeTimeRecordsRepositoryTest {
                 .date(date)
                 .startTime(startTime)
                 .durationMinutes(durationMinutes)
-                .record(record)
                 .build();
 
         record.addTimeRecord(time);
@@ -46,6 +43,8 @@ class FakeTimeRecordsRepositoryTest {
         Record.Time savedTime = fakeTimeRecordsRepository.save(time);
 
         //then
+        assertThat(savedTime).isNotSameAs(time);
+
         assertSoftly(softAssertions -> {
             softAssertions.assertThat(savedTime.getTimeId()).isPositive();
             softAssertions.assertThat(savedTime.getDate()).isEqualTo(date);
@@ -55,42 +54,11 @@ class FakeTimeRecordsRepositoryTest {
         });
 
         assertThat(record.getTimeRecords())
+                .doesNotContain(time);
+
+        assertThat(record.getTimeRecords())
                 .hasSize(1)
-                .doesNotContain(time)
                 .contains(savedTime);
-    }
-
-    @Test
-    @DisplayName("Time 을 조회 할 수 있다.")
-    void find() {
-        //given
-        String action = "공부";
-        String memo = "코딩테스트";
-        long recordId = 1L;
-        Record record = Record.builder()
-                .recordId(recordId)
-                .action(action)
-                .memo(memo)
-                .build();
-
-        LocalDate date = LocalDate.of(2024, 1, 1);
-        LocalTime startTime = LocalTime.of(10, 10);
-        int durationMinutes = 30;
-        Record.Time time = Record.Time.builder()
-                .date(date)
-                .startTime(startTime)
-                .durationMinutes(durationMinutes)
-                .record(record)
-                .build();
-
-        record.addTimeRecord(time);
-        Record.Time savedTime = fakeTimeRecordsRepository.save(time);
-
-        //when
-        Record.Time findTime = fakeTimeRecordsRepository.findById(savedTime.getTimeId()).get();
-
-        //then
-        assertThat(findTime).isEqualTo(savedTime);
     }
 
     @Test
@@ -113,7 +81,6 @@ class FakeTimeRecordsRepositoryTest {
                 .date(date)
                 .startTime(startTime)
                 .durationMinutes(durationMinutes)
-                .record(record)
                 .build();
 
         record.addTimeRecord(oldTime);
@@ -128,8 +95,8 @@ class FakeTimeRecordsRepositoryTest {
                 .date(updateDate)
                 .startTime(updateStartTime)
                 .durationMinutes(updateDurationMinutes)
-                .record(record)
                 .build();
+        record.addTimeRecord(updateTimeData);
 
         //when
         Record.Time updatedTime = fakeTimeRecordsRepository.update(updateTimeData);
