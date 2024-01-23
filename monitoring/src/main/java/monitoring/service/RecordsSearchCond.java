@@ -1,4 +1,4 @@
-package monitoring.api.record;
+package monitoring.service;
 
 import lombok.*;
 

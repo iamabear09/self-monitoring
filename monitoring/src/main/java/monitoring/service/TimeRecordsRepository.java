@@ -16,5 +16,7 @@ public interface TimeRecordsRepository {
     Record.Time delete(Long id);
 
     Set<Record.Time> deleteAll(Set<Record.Time> times);
+
+    Set<Record.Time> findAll(RecordsSearchCond cond);
 }
 

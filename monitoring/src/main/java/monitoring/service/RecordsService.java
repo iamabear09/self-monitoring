@@ -4,10 +4,7 @@ import lombok.RequiredArgsConstructor;
 import monitoring.domain.Record;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -25,4 +22,11 @@ public class RecordsService {
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 Id 입니다."));
     }
 
+    public Set<Record> getList(RecordsSearchCond Cond) {
+        return recordsRepository.findAll(Cond);
+    }
+
+    public Record updateByPatch(Record updateRecord) {
+        return recordsRepository.save(updateRecord);
+    }
 }

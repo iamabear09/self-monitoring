@@ -2,14 +2,16 @@ package monitoring.infra.fake;
 
 import monitoring.domain.Record;
 import monitoring.service.RecordsRepository;
+import monitoring.service.RecordsSearchCond;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.stream.Collectors;
 
 @Repository
 public class FakeRecordsRepository implements RecordsRepository {
@@ -50,6 +52,14 @@ public class FakeRecordsRepository implements RecordsRepository {
         return updateRecord;
     }
 
+    @Override
+    public Set<Record> findAll(RecordsSearchCond cond) {
+        Set<Record.Time> times = fakeTimeRecordsRepository.findAll(cond);
+
+        return times.stream()
+                .map(Record.Time::getRecord)
+                .collect(Collectors.toSet());
+    }
 
     //for test isolation
     public void clear() {

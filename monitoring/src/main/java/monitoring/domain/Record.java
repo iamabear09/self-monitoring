@@ -50,6 +50,15 @@ public class Record {
         timeRecords.add(time);
     }
 
+    private boolean hasSameContentAs(String action, String memo) {
+        if (action == null) return true;
+        if (!this.action.toLowerCase().contains(action.toLowerCase())) return false;
+
+        //memo 는 null 이면 전부다 검색하는 것으로 생각하고 True
+        if (memo == null) return true;
+        return this.memo.toLowerCase().contains(memo.toLowerCase());
+
+    }
 
     @Getter
     @EqualsAndHashCode(exclude = "record")
@@ -88,6 +97,19 @@ public class Record {
 
         public void delete() {
             record.deleteTime(this);
+        }
+
+        public boolean isOnTimeline(LocalDate date, LocalTime time) {
+
+            if (date != null && !this.date.isEqual(date)) return false;
+            if (time != null && (time.isBefore(startTime) || time.isAfter(endTime))) return false;
+
+            //조건이 null 인 경우에도 True 를 반환한다.
+            return true;
+        }
+
+        public boolean hasSameContentAs(String action, String memo) {
+            return record.hasSameContentAs(action, memo);
         }
     }
 

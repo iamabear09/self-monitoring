@@ -1,5 +1,6 @@
 package monitoring.infra.fake;
 
+import monitoring.service.RecordsSearchCond;
 import monitoring.domain.Record;
 import monitoring.service.TimeRecordsRepository;
 import org.springframework.stereotype.Repository;
@@ -61,6 +62,15 @@ public class FakeTimeRecordsRepository implements TimeRecordsRepository {
         if (id == null || id == 0L) { throw new IllegalArgumentException("존재하지 않는 데이터 입니다."); }
 
         return storage.remove(id);
+    }
+
+    @Override
+    public Set<Record.Time> findAll(RecordsSearchCond cond) {
+
+        return storage.values().stream()
+                .filter(time -> time.isOnTimeline(cond.getDate(), cond.getTime()))
+                .filter(time -> time.hasSameContentAs(cond.getAction(), cond.getMemo()))
+                .collect(Collectors.toSet());
     }
 
 }

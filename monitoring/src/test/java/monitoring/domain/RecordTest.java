@@ -1,13 +1,11 @@
 package monitoring.domain;
 
 import org.assertj.core.api.SoftAssertions;
-import org.assertj.core.groups.Tuple;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
-import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -130,6 +128,39 @@ class RecordTest {
         assertThat(record.getTimeRecords())
                 .hasSize(2)
                 .containsExactly(time1, time2);
+    }
+
+    @Test
+    @DisplayName("Record 에 검색 조건을 입력해서 해당 조건에 부합하는지 확인할 수 있다.")
+    void search_actionAndMemo() {
+        //given
+        String action1 = "공부";
+        String memo1 = "코딩테스트";
+        Record record1 = new Record(null, action1, memo1);
+
+        LocalDate date1 = LocalDate.of(2024, 1, 1);
+        LocalTime startTime1 = LocalTime.of(9, 30);
+        int durationMinutes1 = 30;
+        Record.Time time1 = new Record.Time(null, date1, startTime1, durationMinutes1, record1);
+
+        LocalDate date2 = LocalDate.of(2024, 1, 1);
+        LocalTime startTime2 = LocalTime.of(10, 0);
+        int durationMinutes2 = 20;
+        Record.Time time2 = new Record.Time(null, date2, startTime2, durationMinutes2, record1);
+
+        //when
+        boolean nullContent = time1.hasSameContentAs(null, null);
+        boolean sameContent = time1.hasSameContentAs(action1, null);
+        boolean partContent1 = time1.hasSameContentAs("공", null);
+        boolean partContent2 = time1.hasSameContentAs("부", null);
+        boolean differentContent = time1.hasSameContentAs("헬스", null);
+
+        //then
+        assertThat(nullContent).isTrue();
+        assertThat(sameContent).isTrue();
+        assertThat(partContent1).isTrue();
+        assertThat(partContent2).isTrue();
+        assertThat(differentContent).isFalse();
     }
 
 }

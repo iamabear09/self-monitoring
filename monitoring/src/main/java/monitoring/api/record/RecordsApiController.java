@@ -3,12 +3,14 @@ package monitoring.api.record;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import monitoring.domain.Record;
+import monitoring.service.RecordsSearchCond;
 import monitoring.service.RecordsService;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
+import java.util.Set;
 
 @Slf4j
 @RestController
@@ -34,49 +36,22 @@ public class RecordsApiController {
 
     @GetMapping
     public SearchRecordsResponseDto getRecords(@ModelAttribute RecordsSearchCond cond) {
-        log.info(">>> cond = {}", cond);
 
-        //mock data
-        Long recordId1 = 1L;
-        String action1 = "운동";
-        String meno1 = "헬스장";
+        Set<Record> records = recordsService.getList(cond);
 
-        Long timeId1 = 1L;
-        LocalDate date1 = LocalDate.of(2024, 1, 13);
-        LocalTime startTime1 = LocalTime.of(13, 10);
-        Integer durationMinutes1 = 60;
-
-        List<RecordDto.Time> timeRecords1 = List.of(new RecordDto.Time(timeId1, date1, startTime1, durationMinutes1));
-        RecordDto recordDto1 = new RecordDto(recordId1, action1, meno1, timeRecords1);
-
-        //mock data
-        Long recordId2 = 2L;
-        String action2 = "공부";
-        String meno2 = "API 설계";
-
-        Long timeId2 = 2L;
-        LocalDate date2 = LocalDate.of(2024, 1, 11);
-        LocalTime startTime2 = LocalTime.of(13, 10);
-        Integer durationMinutes2 = 60;
-
-        List<RecordDto.Time> timeRecords2 = List.of(new RecordDto.Time(timeId2, date2, startTime2, durationMinutes2));
-        RecordDto recordDto2 = new RecordDto(recordId2, action2, meno2, timeRecords2);
-
-        return new SearchRecordsResponseDto(List.of(recordDto1, recordDto2));
+        return new SearchRecordsResponseDto(records.stream()
+                .map(RecordDto::from)
+                .toList());
     }
 
 
     @PatchMapping("/{id}")
     public RecordDto updateRecordByPatch(@PathVariable Long id, @RequestBody PatchUpdateRecordRequestDto request) {
 
-        Long timeId = 1L;
-        List<RecordDto.Time> timeRecords = null;
-        if (request.getTimeRecords() != null) {
-            timeRecords = request.getTimeRecords().stream()
-                    .map(i -> new RecordDto.Time(timeId, i.getDate(),i.getStartTime(),i.getDurationMinutes()))
-                    .toList();
-        }
-        return new RecordDto(id, request.getAction(), request.getMemo(), timeRecords);
+        Record record = recordsService.get(id);
+        Record updateRecord = request.toUpdateRecordWith(record);
+
+        return RecordDto.from(recordsService.updateByPatch(updateRecord));
     }
 
 
