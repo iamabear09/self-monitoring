@@ -29,16 +29,7 @@ public class RecordsApiController {
     @GetMapping("/{id}")
     public RecordDto getRecord(@PathVariable Long id) {
 
-        //mock data
-        String action = "운동";
-        String meno = "헬스장";
-
-        Long timeId = 1L;
-        LocalDate date = LocalDate.of(2024, 1, 13);
-        LocalTime startTime = LocalTime.of(13, 10);
-        Integer durationMinutes = 60;
-
-        return new RecordDto(id, action, meno, List.of(new RecordDto.Time(timeId, date, startTime, durationMinutes)));
+        return RecordDto.from(recordsService.get(id));
     }
 
     @GetMapping

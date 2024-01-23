@@ -2,6 +2,9 @@ package monitoring.api.record;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
+import monitoring.domain.Record;
+import monitoring.service.RecordsRepository;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,6 +34,9 @@ class RecordsApiControllerTest {
 
     @Autowired
     private ObjectMapper objectMapper;
+
+    @Autowired
+    private RecordsRepository recordsRepository;
 
     @Autowired
     private MockMvc mockMvc;
@@ -80,28 +86,36 @@ class RecordsApiControllerTest {
     void getRecord() throws Exception{
 
         //given
-        Long recordId = 1L;
+        // >>> create Record without id
+        String action = "공부";
+        String memo = "코딩테스트";
+        Record recordWithoutId = new Record(null, action, memo);
+
+        LocalDate date1 = LocalDate.of(2024, 1, 1);
+        LocalTime startTime1 = LocalTime.of(10, 10);
+        int durationMinutes1 = 30;
+        Record.Time timeWithoutId1 = new Record.Time(null, date1, startTime1, durationMinutes1, recordWithoutId);
+
+        LocalDate date2 = LocalDate.of(2024, 1, 2);
+        LocalTime startTime2 = LocalTime.of(5, 34);
+        int durationMinutes2 = 120;
+        Record.Time timeWithoutId2 = new Record.Time(null, date2, startTime2, durationMinutes2, recordWithoutId);
+        // <<< create Record without id
+
+        Record record = recordsRepository.save(recordWithoutId);
+
 
         //when
         ResultActions resultActions
-                = mockMvc.perform(get("/api/records/{id}", recordId));
+                = mockMvc.perform(get("/api/records/{id}", record.getRecordId()));
 
         //then
         resultActions
                 .andExpect(status().isOk())
                 .andDo(print());
-
         RecordDto response = objectMapper.readValue(resultActions.andReturn().getResponse().getContentAsString(StandardCharsets.UTF_8), RecordDto.class);
 
-        //expected mock date
-        Long timeId = 1L;
-        LocalDate date = LocalDate.of(2024, 1, 13);
-        LocalTime startTime = LocalTime.of(13, 10);
-        Integer durationMinutes = 60;
-        String action = "운동";
-        String memo = "헬스장";
-
-        RecordDto expected = new RecordDto(recordId, action, memo, List.of(new RecordDto.Time(timeId, date, startTime, durationMinutes)));
+        RecordDto expected = RecordDto.from(record);
         assertThat(response).isEqualTo(expected);
     }
 
