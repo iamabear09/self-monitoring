@@ -8,4 +8,5 @@ import java.util.List;
 
 public interface TimeRepository extends JpaRepository<Time, Long> {
 
+    List<Time> findByRecordId(Long id);
 }
