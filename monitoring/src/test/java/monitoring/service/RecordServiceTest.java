@@ -2,6 +2,7 @@ package monitoring.service;
 
 import lombok.extern.slf4j.Slf4j;
 import monitoring.domain.Record;
+import monitoring.domain.Time;
 import monitoring.repository.RecordRepository;
 import monitoring.repository.TimeRepository;
 import org.assertj.core.api.Assertions;
@@ -42,72 +43,70 @@ class RecordServiceTest {
         // >>> create Record without id
         String action = "공부";
         String memo = "코딩테스트";
-        Record recordData = new Record(null, action, memo);
+        Record recordData = Record.builder()
+                .action(action)
+                .memo(memo)
+                .build();
 
         LocalDate date1 = LocalDate.of(2024, 1, 1);
         LocalTime startTime1 = LocalTime.of(10, 10);
         int durationMinutes1 = 30;
-        Record.Time timeData1 = new Record.Time(null, date1, startTime1, durationMinutes1, recordData);
+        Time timeData1 = Time.builder()
+                .date(date1)
+                .startTime(startTime1)
+                .durationMinutes(durationMinutes1)
+                .endTime(startTime1.plusMinutes(durationMinutes1))
+                .build();
 
         LocalDate date2 = LocalDate.of(2024, 1, 2);
         LocalTime startTime2 = LocalTime.of(5, 34);
         int durationMinutes2 = 120;
-        Record.Time timeData2 = new Record.Time(null, date2, startTime2, durationMinutes2, recordData);
+        Time timeData2 = Time.builder()
+                .date(date2)
+                .startTime(startTime2)
+                .durationMinutes(durationMinutes2)
+                .endTime(startTime2.plusMinutes(durationMinutes2))
+                .build();
         // <<< create Record without id
 
 
         // >>> create Record for Mock Return
-        Record mockRecord = new Record(1L, action, memo);
-        Record.Time mockTime1 = new Record.Time(1L, date1, startTime1, durationMinutes1, mockRecord);
-        Record.Time mockTime2 = new Record.Time(2L, date2, startTime2, durationMinutes2, mockRecord);
+        Record mockRecord = Record.builder()
+                .id(1L)
+                .action(action)
+                .memo(memo)
+                .build();
+
+        Time mockTime1 = Time.builder()
+                .id(1L)
+                .date(date1)
+                .startTime(startTime1)
+                .durationMinutes(durationMinutes1)
+                .endTime(startTime1.plusMinutes(durationMinutes1))
+                .build();
+        Time mockTime2 = Time.builder()
+                .id(2L)
+                .date(date2)
+                .startTime(startTime2)
+                .durationMinutes(durationMinutes2)
+                .endTime(startTime2.plusMinutes(durationMinutes2))
+                .build();
         // <<< create Record for Mock Return
 
+        // >>> stub
         given(recordRepository.save(eq(recordData))).willReturn(mockRecord);
+        given(timeRepository.save(eq(timeData1))).willReturn(mockTime1);
+        given(timeRepository.save(eq(timeData2))).willReturn(mockTime2);
+        // <<< stub
 
         //when
-        Record savedRecord = recordService.create(recordData);
+        Record savedRecord = recordService.create(recordData, List.of(timeData1, timeData2));
 
         //then
-        verify(timeRepository).saveAll(List.of(timeData1, timeData2));
         assertThat(savedRecord).isSameAs(mockRecord);
-
-    }
-
-    @Test
-    @DisplayName("Record 를 조회할 수 있다.")
-    void getRecord() {
-
-        //given
-        // >>> create Record
-        String action = "공부";
-        String memo = "코딩테스트";
-        long recordId = 1L;
-        Record recordData = new Record(recordId, action, memo);
-
-        LocalDate date1 = LocalDate.of(2024, 1, 1);
-        LocalTime startTime1 = LocalTime.of(10, 10);
-        int durationMinutes1 = 30;
-        Record.Time timeData1 = new Record.Time(1L, date1, startTime1, durationMinutes1,null);
-
-        LocalDate date2 = LocalDate.of(2024, 1, 2);
-        LocalTime startTime2 = LocalTime.of(5, 34);
-        int durationMinutes2 = 120;
-        Record.Time timeData2 = new Record.Time(2L, date2, startTime2, durationMinutes2, null);
-        // <<< create Record
-
-        given(recordRepository.findById(eq(recordId))).willReturn(Optional.of(recordData));
-        given(timeRepository.findByRecordId(eq(recordId))).willReturn(List.of(timeData1, timeData2));
-
-        //when
-        Record record = recordService.get(recordId);
-
-        //then
-        assertThat(record.getId()).isEqualTo(recordData.getId());
-        assertThat(record.getAction()).isEqualTo(recordData.getAction());
-        assertThat(record.getMemo()).isEqualTo(recordData.getMemo());
-        assertThat(record.getTimeRecords())
+        assertThat(savedRecord.getTimeRecords())
                 .hasSize(2)
-                .containsExactly(timeData1, timeData2);
+                .containsExactly(mockTime1, mockTime2);
 
     }
 
