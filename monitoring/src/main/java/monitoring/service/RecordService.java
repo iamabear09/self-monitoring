@@ -22,7 +22,7 @@ public class RecordService {
     private final TimeRepository timeRepository;
 
     @Transactional
-    public Record create(Record recordData, List<Time> timeData) {
+    public Record create(Record recordData) {
 
         Record record = Record.builder()
                 .action(recordData.getAction())
@@ -30,7 +30,7 @@ public class RecordService {
                 .build();
         Record savedRecord = recordRepository.save(record);
 
-        List<Time> timeList = timeData
+        List<Time> timeList = recordData.getTimeRecords()
                 .stream()
                 .map(t -> {
                     Time time = Time.builder()
@@ -62,28 +62,47 @@ public class RecordService {
         List<Time> times = timeRepository.findByRecordId(id);
 
         record.setTimeRecords(times);
+        times.forEach(t -> {
+            t.setRecord(record);
+        });
+
         return record;
     }
 
     @Transactional
-    public Record updateContent(Long id, Record recordData) {
+    public Record update(Long id, Record recordData) {
         Record record = recordRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 id 입니다."));
 
-        updateOnlyContent(record, recordData);
-        updateTime(record, recordData);
+        updateContent(record, recordData);
+        Record savedRecord = recordRepository.save(record);
 
-        return recordRepository.save(record);
+        updateTime(savedRecord, recordData);
+        return savedRecord;
     }
 
 
     private void updateTime(Record record, Record updateData) {
         if (updateData.getTimeRecords() == null || updateData.getTimeRecords().isEmpty()) return;
 
+        //delete origin times first
+        List<Time> originTimes = timeRepository.findByRecordId(record.getId());
+
+        timeRepository.deleteAllInBatch(originTimes);
+
+        //update
+        List<Time> updatedTimes = updateData.getTimeRecords()
+                .stream()
+                .map(t -> {
+                    t.setRecord(record);
+                    return timeRepository.save(t);
+                })
+                .toList();
+        record.setTimeRecords(updatedTimes);
 
     }
 
-    private void updateOnlyContent(Record record, Record updateData) {
+    private void updateContent(Record record, Record updateData) {
         if (StringUtils.hasText(updateData.getAction())) {
             record.setAction(updateData.getAction());
         }
