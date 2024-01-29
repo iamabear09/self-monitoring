@@ -8,6 +8,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.jdbc.Sql;
 
@@ -20,14 +21,14 @@ import java.util.List;
 class TimeRepositoryTest {
 
     @Autowired
-    EntityManager entityManager;
+    TestEntityManager testEntityManager;
 
     @Autowired
     TimeRepository timeRepository;
 
 
     @Test
-    @DisplayName("Time 을 record의 action 으로 검색할 수 있다.")
+    @DisplayName("Time 을 record 의 action 으로 검색할 수 있다.")
     void search() {
         //given
         // >>> make record data
@@ -97,8 +98,8 @@ class TimeRepositoryTest {
         record2.addTime(time4);
         record2.addTime(time5);
 
-        entityManager.persist(record1);
-        entityManager.persist(record2);
+        testEntityManager.persist(record1);
+        testEntityManager.persist(record2);
         // <<< make record data
 
         String actionCond = "공부";
@@ -126,7 +127,5 @@ class TimeRepositoryTest {
                     .contains(time5);
         });
     }
-
-
 
 }

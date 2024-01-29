@@ -2,6 +2,7 @@ package monitoring.domain;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.springframework.util.StringUtils;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -22,7 +23,7 @@ public class Record {
     private String action;
     private String memo;
 
-    @OneToMany(mappedBy = "record", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "record")
     private List<Time> timeRecords = new ArrayList<>();
 
     @Builder
@@ -40,6 +41,22 @@ public class Record {
     public void deleteTime(Time time) {
         time.record = null;
         timeRecords.remove(time);
+    }
+
+    public void deleteAllTimes() {
+        timeRecords.forEach(t -> {
+            t.record = null;
+        });
+        timeRecords.clear();
+    }
+
+    public void updateContent(Record updateData) {
+        if (StringUtils.hasText(updateData.getAction())) {
+            action = updateData.getAction();
+        }
+        if (StringUtils.hasText(updateData.getMemo())) {
+            memo = updateData.getMemo();
+        }
     }
 
     @NoArgsConstructor(access = AccessLevel.PROTECTED)

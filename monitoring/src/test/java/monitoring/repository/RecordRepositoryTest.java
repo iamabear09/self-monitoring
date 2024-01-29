@@ -7,6 +7,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import org.springframework.test.context.ActiveProfiles;
 
 import java.time.LocalDate;
@@ -17,13 +18,13 @@ import java.time.LocalTime;
 class RecordRepositoryTest {
 
     @Autowired
-    EntityManager entityManager;
+    TestEntityManager testEntityManager;
 
     @Autowired
     private RecordRepository recordRepository;
 
     @Test
-    @DisplayName("")
+    @DisplayName("Record 를 Time 과 함께 저장할 수 있다.")
     void save() {
         //given
         String action = "운동";
@@ -79,11 +80,11 @@ class RecordRepositoryTest {
 
         record.addTime(time);
 
-        entityManager.persist(record);
-        entityManager.persist(time);
+        testEntityManager.persist(record);
+        testEntityManager.persist(time);
 
-        entityManager.flush();
-        entityManager.clear();
+        testEntityManager.flush();
+        testEntityManager.clear();
 
         //when
         Record findRecord = recordRepository.findByIdWithTimes(record.getId()).get();
