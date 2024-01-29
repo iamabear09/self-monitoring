@@ -152,5 +152,53 @@ class RecordServiceTest {
 
     }
 
+    @Test
+    @DisplayName("Record 를 삭제할 수 있다.")
+    void delete() {
+        //given
+        // >>> make record data
+        String action1 = "운동";
+        String memo1 = "헬스장";
+        Record record = Record.builder()
+                .action(action1)
+                .memo(memo1)
+                .build();
+
+        LocalDate date1 = LocalDate.of(2024, 1, 1);
+        LocalTime startTime1 = LocalTime.of(15, 10);
+        int durationMinutes1 = 30;
+        Record.Time time1 = Record.Time.builder()
+                .date(date1)
+                .startTime(startTime1)
+                .durationMinutes(durationMinutes1)
+                .build();
+
+        LocalDate date2 = LocalDate.of(2024, 1, 1);
+        LocalTime startTime2 = LocalTime.of(16, 10);
+        int durationMinutes2 = 30;
+        Record.Time time2 = Record.Time.builder()
+                .date(date2)
+                .startTime(startTime2)
+                .durationMinutes(durationMinutes2)
+                .build();
+
+        record.addTime(time1);
+        record.addTime(time2);
+
+        Record savedRecord = testEntityManager.persist(record);
+        testEntityManager.flush();
+        testEntityManager.clear();
+        // <<< make record data
+
+        //when
+        recordService.delete(savedRecord.getId());
+
+        //then
+        Assertions.assertThat(recordRepository.findById(record.getId()).isEmpty()).isTrue();
+        Assertions.assertThat(timeRepository.findById(time1.getId()).isEmpty()).isTrue();
+        Assertions.assertThat(timeRepository.findById(time2.getId()).isEmpty()).isTrue();
+
+    }
+
 }
 

@@ -23,7 +23,7 @@ public class Record {
     private String action;
     private String memo;
 
-    @OneToMany(mappedBy = "record")
+    @OneToMany(mappedBy = "record", cascade = CascadeType.ALL)
     private List<Time> timeRecords = new ArrayList<>();
 
     @Builder

@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -23,9 +24,7 @@ public class RecordService {
 
     @Transactional
     public Record create(Record record) {
-        Record savedRecord = recordRepository.save(record);
-        timeRepository.saveAll(record.getTimeRecords());
-        return savedRecord;
+        return recordRepository.save(record);
     }
 
     public Record get(Long id) {
@@ -58,6 +57,16 @@ public class RecordService {
             record.addTime(t);
             timeRepository.save(t);
         });
+
+        return record;
+    }
+
+    @Transactional
+    public Record delete(Long id) {
+        Record record = recordRepository.findByIdWithTimes(id)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 Id 입니다."));
+        timeRepository.deleteAllInBatch(record.getTimeRecords());
+        recordRepository.delete(record);
 
         return record;
     }
