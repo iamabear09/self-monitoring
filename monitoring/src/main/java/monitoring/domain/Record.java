@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.util.StringUtils;
 
+import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.ArrayList;
@@ -87,6 +88,12 @@ public class Record {
             this.durationMinutes = durationMinutes;
             this.endTime = startTime.plusMinutes(durationMinutes);
         }
+
+        public void updateTimeRange(LocalTime startTime, LocalTime endTime) {
+            this.startTime = startTime;
+            this.endTime = endTime;
+        }
+
 
     }
 }

@@ -11,7 +11,7 @@ import java.time.LocalTime;
 import java.util.List;
 
 import static monitoring.domain.QRecord.record;
-import static monitoring.domain.QRecord_Time.*;
+import static monitoring.domain.QRecord_Time.time;
 
 public class TimeRepositoryImpl implements TimeRepositoryCustom {
 
@@ -42,5 +42,30 @@ public class TimeRepositoryImpl implements TimeRepositoryCustom {
 
         return timeCond != null ? dataCond.and(time.startTime.loe(timeCond)
                 .and(time.endTime.goe(timeCond))): dataCond;
+    }
+
+    @Override
+    public List<Record.Time> searchOverlappingTimesWithRecord(LocalDate date, LocalTime start, LocalTime end) {
+
+        return jpaQueryFactory.selectFrom(time)
+                .join(time.record, record).fetchJoin()
+                .where(dateEqAndOverlapTime(date, start, end))
+                .fetch();
+    }
+
+    private BooleanExpression dateEqAndOverlapTime(LocalDate dateCond, LocalTime start, LocalTime end) {
+        if (dateCond == null) return null;
+        BooleanExpression dateEq = time.date.eq(dateCond);
+
+        BooleanExpression endTimeInTimeLine = time.endTime.gt(start)
+                .and(time.endTime.loe(end));
+        BooleanExpression startTimeInTimeLine = time.startTime.goe(start)
+                .and(time.startTime.lt(end));
+        BooleanExpression TimeLineInTime = time.startTime.loe(start)
+                .and(time.endTime.goe(end));
+
+        BooleanExpression timeCond = endTimeInTimeLine.or(startTimeInTimeLine).or(TimeLineInTime);
+
+        return dateEq.and(timeCond);
     }
 }
