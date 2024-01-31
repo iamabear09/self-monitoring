@@ -7,7 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Getter @Setter
-@EqualsAndHashCode @ToString
+@EqualsAndHashCode(exclude = "timeLogs") @ToString
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
 public class Record {
@@ -20,14 +20,14 @@ public class Record {
     private String memo;
 
     @OneToMany(mappedBy = "record")
-    private List<TimeLog> timeLogRecords = new ArrayList<>();
+    private List<TimeLog> timeLogs = new ArrayList<>();
 
     @Builder
-    public Record(Long id, String action, String memo, List<TimeLog> timeLogRecords) {
+    public Record(Long id, String action, String memo, List<TimeLog> timeLogs) {
         this.id = id;
         this.action = action;
         this.memo = memo;
-        this.timeLogRecords = timeLogRecords;
+        this.timeLogs = timeLogs;
     }
 
 }
