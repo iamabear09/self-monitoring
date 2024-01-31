@@ -5,6 +5,7 @@ import lombok.*;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Getter @Setter
 @EqualsAndHashCode(exclude = "timeLogs") @ToString
@@ -27,7 +28,15 @@ public class Record {
         this.id = id;
         this.action = action;
         this.memo = memo;
-        this.timeLogs = timeLogs;
+        setTimeLogs(timeLogs);
+    }
+
+    public void setTimeLogs(List<TimeLog> timeLogs) {
+        this.timeLogs.clear();
+
+        if (timeLogs != null) {
+            this.timeLogs.addAll(timeLogs);
+        }
     }
 
 }

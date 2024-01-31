@@ -1,10 +1,14 @@
 package monitoring.service;
 
 import lombok.RequiredArgsConstructor;
+import monitoring.common.ErrorMessage;
 import monitoring.domain.Record;
 import monitoring.repository.RecordRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
+
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -26,7 +30,23 @@ public class RecordService {
     public Record get(Long id) {
 
         return recordRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 Record 입니다."));
+                .orElseThrow(() -> new IllegalArgumentException(ErrorMessage.ENTITY_NOT_FOUND.getMessage()));
+    }
+
+    @Transactional
+    public Record update(Long id, Record recordData) {
+
+        Record record = recordRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException(ErrorMessage.ENTITY_NOT_FOUND.getMessage()));
+
+        if (StringUtils.hasText(recordData.getAction())) {
+            recordData.setAction(record.getAction());
+        }
+        if (StringUtils.hasLength(recordData.getMemo())) {
+            recordData.setMemo(record.getMemo());
+        }
+
+        return recordRepository.save(record);
     }
 }
 

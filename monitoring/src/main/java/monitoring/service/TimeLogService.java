@@ -5,18 +5,26 @@ import monitoring.domain.Record;
 import monitoring.domain.TimeLog;
 import monitoring.repository.TimeLogRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Duration;
 import java.time.LocalTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class TimeLogService {
 
     private TimeLogRepository timeLogRepository;
 
+    @Transactional
     public List<TimeLog> save(Record record, List<TimeLog> timeLogDataList) {
+
+        if (timeLogDataList == null) {
+            return new ArrayList<>();
+        }
 
         List<TimeLog> timeLogs = timeLogDataList
                 .stream()
@@ -50,6 +58,19 @@ public class TimeLogService {
 
     public List<TimeLog> getTimeLogsByRecordId(Long recordId) {
         return timeLogRepository.findByRecordId(recordId);
+    }
+
+    @Transactional
+    public List<TimeLog> deleteByRecordId(Long recordId) {
+        List<TimeLog> timeLogs = timeLogRepository.findByRecordId(recordId);
+
+        timeLogs.forEach(t -> {
+            t.getRecord().getTimeLogs().remove(t);
+            t.setRecord(null);
+        });
+
+        timeLogRepository.deleteAllInBatch(timeLogs);
+        return timeLogs;
     }
 }
 

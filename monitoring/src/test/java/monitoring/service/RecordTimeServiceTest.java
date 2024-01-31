@@ -2,6 +2,7 @@ package monitoring.service;
 
 import monitoring.domain.Record;
 import monitoring.domain.TimeLog;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -18,6 +19,7 @@ import java.util.List;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.verify;
 
 @ExtendWith(MockitoExtension.class)
 class RecordTimeServiceTest {
@@ -35,6 +37,8 @@ class RecordTimeServiceTest {
     //given
     Record recordInput1;
     Record recordStub1;
+    Record recordInput2;
+    Record recordStub2;
     TimeLog timeInput1;
     TimeLog timeInput2;
     TimeLog timeInput3;
@@ -58,11 +62,23 @@ class RecordTimeServiceTest {
                 .memo(memo1)
                 .build();
 
-        long id = 1L;
         recordStub1 = Record.builder()
-                .id(id)
+                .id(1L)
                 .action(action1)
                 .memo(memo1)
+                .build();
+
+        String action2 = "헬스";
+        String memo2 = "벤치프레스";
+        recordInput2 = Record.builder()
+                .action(action1)
+                .memo(memo1)
+                .build();
+
+        recordStub2 = Record.builder()
+                .id(2L)
+                .action(action2)
+                .memo(memo2)
                 .build();
 
 
@@ -164,6 +180,26 @@ class RecordTimeServiceTest {
 
     }
 
+    @Test
+    @DisplayName("Record 를 업데이트 할 수 있다. 이 때, TimeLog 는 모두 삭제되었다가 새로 추가 된다. 기존에 존재하던 Time 과 중복을 허용한다.")
+    void updateAllowingOverlap() {
+        //given
+        recordInput1.setTimeLogs(List.of(timeInput1, timeInput2));
+        given(recordService.update(1L, recordInput1)).willReturn(recordStub1);
+        given(timeLogService.save(eq(recordStub1), eq(List.of(timeInput1, timeInput2)))).willReturn(List.of(timeStub1, timeStub2));
+
+        //when
+        Record updateRecord = recordTimeService.updateAllowingOverlap(1L, recordInput1);
+
+        //then
+        verify(timeLogService).deleteByRecordId(eq(1L));
+
+        assertThat(updateRecord).isEqualTo(recordStub1);
+        assertThat(updateRecord.getTimeLogs())
+                .hasSize(2)
+                .contains(timeStub1, timeStub2);
+
+    }
     private Record copyRecordFrom(Record record) {
         if (record == null) {
             return null;

@@ -34,5 +34,18 @@ public class RecordTimeService {
         return record;
     }
 
-    public Record getList()
+    @Transactional
+    public Record updateAllowingOverlap(Long id, Record recordData) {
+
+        timeLogService.deleteByRecordId(id);
+
+        Record updatedRecord = recordService.update(id, recordData);
+
+        List<TimeLog> savedTimeLogs = timeLogService.save(updatedRecord, recordData.getTimeLogs());
+        updatedRecord.setTimeLogs(savedTimeLogs);
+
+        return updatedRecord;
+    }
+
 }
+

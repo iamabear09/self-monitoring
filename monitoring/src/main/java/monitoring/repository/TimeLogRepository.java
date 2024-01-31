@@ -8,4 +8,5 @@ import java.util.List;
 public interface TimeLogRepository extends JpaRepository<TimeLog, Long> {
 
     List<TimeLog> findByRecordId(Long recordId);
+
 }
