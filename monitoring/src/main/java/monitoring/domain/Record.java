@@ -20,14 +20,14 @@ public class Record {
     private String memo;
 
     @OneToMany(mappedBy = "record")
-    private List<Time> timeRecords = new ArrayList<>();
+    private List<TimeLog> timeLogRecords = new ArrayList<>();
 
     @Builder
-    public Record(Long id, String action, String memo, List<Time> timeRecords) {
+    public Record(Long id, String action, String memo, List<TimeLog> timeLogRecords) {
         this.id = id;
         this.action = action;
         this.memo = memo;
-        this.timeRecords = timeRecords;
+        this.timeLogRecords = timeLogRecords;
     }
 
 }

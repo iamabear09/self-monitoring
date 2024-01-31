@@ -10,11 +10,11 @@ import java.time.LocalTime;
 @EqualsAndHashCode(exclude = "record") @ToString(exclude = "record")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
-public class Time {
+public class TimeLog {
 
     @Id
     @GeneratedValue
-    @Column(name = "time_id")
+    @Column(name = "timelog_id")
     private Long id;
 
     private LocalDate date;
@@ -27,7 +27,7 @@ public class Time {
     private Record record;
 
     @Builder
-    public Time(Long id, LocalDate date, LocalTime startTime, LocalTime endTime, Integer durationMinutes, Record record) {
+    public TimeLog(Long id, LocalDate date, LocalTime startTime, LocalTime endTime, Integer durationMinutes, Record record) {
         this.id = id;
         this.date = date;
         this.startTime = startTime;
