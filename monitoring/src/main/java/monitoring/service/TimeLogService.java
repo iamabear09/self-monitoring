@@ -46,5 +46,10 @@ public class TimeLogService {
         }
         return timeLog.getStartTime().plusMinutes(timeLog.getDurationMinutes().toMinutes());
     }
+
+
+    public List<TimeLog> getTimeLogsByRecordId(Long recordId) {
+        return timeLogRepository.findByRecordId(recordId);
+    }
 }
 
