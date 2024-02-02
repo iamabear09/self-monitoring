@@ -8,8 +8,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
-import java.util.Optional;
-
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -28,7 +26,6 @@ public class RecordService {
     }
 
     public Record get(Long id) {
-
         return recordRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException(ErrorMessage.ENTITY_NOT_FOUND.getMessage()));
     }
@@ -47,6 +44,13 @@ public class RecordService {
         }
 
         return recordRepository.save(record);
+    }
+
+    public Record delete(Long id) {
+        Record record = recordRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException(ErrorMessage.ENTITY_NOT_FOUND.getMessage()));
+        recordRepository.delete(record);
+        return record;
     }
 }
 

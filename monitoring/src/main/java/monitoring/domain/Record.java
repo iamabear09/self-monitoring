@@ -5,7 +5,6 @@ import lombok.*;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 @Getter @Setter
 @EqualsAndHashCode(exclude = "timeLogs") @ToString
@@ -21,23 +20,13 @@ public class Record {
     private String memo;
 
     @OneToMany(mappedBy = "record")
-    private List<TimeLog> timeLogs = new ArrayList<>();
+    private final List<TimeLog> timeLogs = new ArrayList<>();
 
     @Builder
-    public Record(Long id, String action, String memo, List<TimeLog> timeLogs) {
+    public Record(Long id, String action, String memo) {
         this.id = id;
         this.action = action;
         this.memo = memo;
-        setTimeLogs(timeLogs);
     }
-
-    public void setTimeLogs(List<TimeLog> timeLogs) {
-        this.timeLogs.clear();
-
-        if (timeLogs != null) {
-            this.timeLogs.addAll(timeLogs);
-        }
-    }
-
 }
 

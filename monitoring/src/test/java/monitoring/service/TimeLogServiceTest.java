@@ -46,6 +46,8 @@ class TimeLogServiceTest {
     TimeLog timeStub2;
     TimeLog timeStub3;
     TimeLog timeStub4;
+    TimeLog timeStub5;
+    TimeLog timeStub6;
 
     @BeforeEach
     void initGiven() {
@@ -57,10 +59,13 @@ class TimeLogServiceTest {
                 .build();
 
 
+        //10:50 - 12:10
+        // <--- time --->
+        //   <-range->
         LocalDate date1 = LocalDate.of(2024, 1, 1);
-        LocalTime startTime1 = LocalTime.of(10, 10);
-        LocalTime endTime1 = LocalTime.of(10, 30);
-        Duration durationMinutes1 = Duration.ofMinutes(20L);
+        LocalTime startTime1 = LocalTime.of(10, 50);
+        LocalTime endTime1 = LocalTime.of(12, 10);
+        Duration durationMinutes1 = Duration.ofMinutes(80L);
         timeInput1 = TimeLog.builder()
                 .date(date1)
                 .startTime(startTime1)
@@ -77,10 +82,13 @@ class TimeLogServiceTest {
                 .build();
 
 
-        LocalDate date2 = LocalDate.of(2024, 1, 2);
-        LocalTime startTime2 = LocalTime.of(10, 40);
-        LocalTime endTime2 = LocalTime.of(11, 10);
-        Duration durationMinutes2 = Duration.ofMinutes(30L);
+        //11:00 - 12:00
+        // <-----time----->
+        // <-----range---->
+        LocalDate date2 = LocalDate.of(2024, 1, 1);
+        LocalTime startTime2 = LocalTime.of(11, 0);
+        LocalTime endTime2 = LocalTime.of(12, 0);
+        Duration durationMinutes2 = Duration.ofMinutes(60L);
         timeInput2 = TimeLog.builder()
                 .date(date2)
                 .startTime(startTime2)
@@ -98,9 +106,12 @@ class TimeLogServiceTest {
                 .build();
 
 
-        LocalDate date3 = LocalDate.of(2024, 1, 2);
-        LocalTime startTime3 = LocalTime.of(10, 40);
-        LocalTime endTime3 = LocalTime.of(11, 10);
+        //10:30 - 11:00
+        // <--time-->
+        //           <-----range---->
+        LocalDate date3 = LocalDate.of(2024, 1, 1);
+        LocalTime startTime3 = LocalTime.of(10, 30);
+        LocalTime endTime3 = LocalTime.of(11, 0);
         timeInput3 = TimeLog.builder()
                 .date(date3)
                 .startTime(startTime3)
@@ -119,13 +130,17 @@ class TimeLogServiceTest {
                 .id(3L)
                 .date(date3)
                 .startTime(startTime3)
+                .endTime(endTime3)
                 .durationMinutes(durationMinutes3)
                 .record(recordStub1)
                 .build();
 
-        LocalDate date4 = LocalDate.of(2024, 1, 2);
-        LocalTime startTime4 = LocalTime.of(10, 40);
-        Duration durationMinutes4 = Duration.ofMinutes(20L);
+        //12:00 - 12:30
+        //                <--time-->
+        //<-----range---->
+        LocalDate date4 = LocalDate.of(2024, 1, 1);
+        LocalTime startTime4 = LocalTime.of(12, 0);
+        Duration durationMinutes4 = Duration.ofMinutes(30L);
         timeInput4 = TimeLog.builder()
                 .date(date4)
                 .startTime(startTime4)
@@ -133,7 +148,7 @@ class TimeLogServiceTest {
                 .record(recordStub1)
                 .build();
 
-        LocalTime endTime4 = LocalTime.of(11, 0);
+        LocalTime endTime4 = LocalTime.of(12, 30);
         timeMockInput4 = TimeLog.builder()
                 .date(date4)
                 .startTime(startTime4)
@@ -150,6 +165,38 @@ class TimeLogServiceTest {
                 .endTime(endTime4)
                 .record(recordStub1)
                 .build();
+
+        //11:30 - 12:30
+        //           <--time-->
+        //<-----range---->
+        LocalDate date5 = LocalDate.of(2024, 1, 1);
+        LocalTime startTime5 = LocalTime.of(11, 30);
+        LocalTime endTime5 = LocalTime.of(12, 30);
+        Duration durationMinutes5 = Duration.ofMinutes(60L);
+        timeStub5 = TimeLog.builder()
+                .id(5L)
+                .date(date5)
+                .startTime(startTime5)
+                .endTime(endTime5)
+                .durationMinutes(durationMinutes5)
+                .record(recordStub1)
+                .build();
+
+        //10:30 - 11:30
+        //<--time-->
+        //      <-----range---->
+        LocalDate date6 = LocalDate.of(2024, 1, 1);
+        LocalTime startTime6 = LocalTime.of(10, 30);
+        LocalTime endTime6 = LocalTime.of(11, 30);
+        Duration durationMinutes6 = Duration.ofMinutes(60L);
+        timeStub6 = TimeLog.builder()
+                .id(6L)
+                .date(date6)
+                .startTime(startTime6)
+                .endTime(endTime6)
+                .durationMinutes(durationMinutes6)
+                .record(recordStub1)
+                .build();
     }
 
     @Test
@@ -157,8 +204,10 @@ class TimeLogServiceTest {
     void saveTimeLogs() {
 
         //given
-        given(timeLogRepository.saveAll(eq(List.of(timeInput1, timeInput2, timeMockInput4, timeMockInput3))))
-                .willReturn(List.of(timeStub1, timeStub2, timeStub3, timeStub4));
+        given(timeLogRepository.save(timeInput1)).willReturn(timeStub1);
+        given(timeLogRepository.save(timeInput2)).willReturn(timeStub2);
+        given(timeLogRepository.save(timeMockInput3)).willReturn(timeStub3);
+        given(timeLogRepository.save(timeMockInput4)).willReturn(timeStub4);
 
         //when
         List<TimeLog> savedTimeLogs = timeLogService.save(recordStub1, List.of(timeInput1, timeInput2, timeInput4, timeInput3));
@@ -170,24 +219,23 @@ class TimeLogServiceTest {
     }
 
     @Test
-    @DisplayName(" RecordId 를 통해 해당 Record 의 모든 TimeLogs 를 삭제할 수 있다.")
-    void deleteTimeLog() {
+    @DisplayName("주어진 Time Line 과 겹치는 구간이 있는 Time Log 를 찾을 수 있다.")
+    void searchOverlappingTimeLogs() {
 
         //given
-        recordStub1.setTimeLogs(List.of(timeStub1, timeStub2, timeStub3));
-        given(timeLogRepository.findByRecordId(eq(1L))).willReturn(List.of(timeStub1, timeStub2, timeStub3));
+        given(timeLogRepository.findByDate(eq(LocalDate.of(2024, 1, 1))))
+                .willReturn(List.of(timeStub1, timeStub2, timeStub3, timeStub4, timeStub5, timeStub6));
+
+        LocalTime from = LocalTime.of(11, 0);
+        LocalTime to = LocalTime.of(12, 0);
 
         //when
-        List<TimeLog> deletedTimeLogs = timeLogService.deleteByRecordId(1L);
+        List<TimeLog> filteredTimeLogs = timeLogService.searchOverlappingTimeLogs(LocalDate.of(2024, 1, 1), from, to);
 
         //then
-        verify(timeLogRepository).deleteAllInBatch(eq(List.of(timeStub1, timeStub2, timeStub3)));
-
-        assertThat(deletedTimeLogs)
-                .hasSize(3)
-                .extracting("record")
-                .contains(null, null, null);
+        Assertions.assertThat(filteredTimeLogs)
+                .hasSize(4)
+                .contains(timeStub1, timeStub2, timeStub5, timeStub6);
     }
-
 }
 

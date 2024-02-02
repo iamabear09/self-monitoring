@@ -44,6 +44,7 @@ class RecordServiceTest {
                 .action(action1)
                 .memo(memo1)
                 .build();
+
     }
 
 

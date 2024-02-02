@@ -17,10 +17,12 @@ public class TimeLog {
     @GeneratedValue
     @Column(name = "timelog_id")
     private Long id;
+
     private LocalDate date;
     private LocalTime startTime;
     private LocalTime endTime;
     private Duration durationMinutes;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "record_id")
     private Record record;
