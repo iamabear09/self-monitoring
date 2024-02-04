@@ -2,13 +2,11 @@ package monitoring.service;
 
 import monitoring.domain.Record;
 import monitoring.repository.RecordRepository;
-import org.assertj.core.api.Assertions;
 import org.assertj.core.api.SoftAssertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.BDDMockito;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -55,7 +53,7 @@ class RecordServiceTest {
         given(recordRepository.save(eq(recordData1))).willReturn(mockRecord1);
 
         //when
-        Record savedRecord = recordService.save(recordData1);
+        Record savedRecord = recordService.create(recordData1);
 
         //then
         SoftAssertions.assertSoftly(softAssertions -> {

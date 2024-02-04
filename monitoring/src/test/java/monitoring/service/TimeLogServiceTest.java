@@ -1,5 +1,9 @@
 package monitoring.service;
 
+import jakarta.persistence.FetchType;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import monitoring.api.record.RecordDto;
 import monitoring.domain.Record;
 import monitoring.domain.TimeLog;
 import monitoring.repository.TimeLogRepository;
@@ -10,6 +14,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.Duration;
@@ -20,6 +25,8 @@ import java.util.List;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.BDDMockito.will;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 @ExtendWith(MockitoExtension.class)
@@ -210,7 +217,7 @@ class TimeLogServiceTest {
         given(timeLogRepository.save(timeMockInput4)).willReturn(timeStub4);
 
         //when
-        List<TimeLog> savedTimeLogs = timeLogService.save(recordStub1, List.of(timeInput1, timeInput2, timeInput4, timeInput3));
+        List<TimeLog> savedTimeLogs = timeLogService.create(recordStub1, List.of(timeInput1, timeInput2, timeInput4, timeInput3));
 
         //then
         assertThat(savedTimeLogs)
@@ -237,5 +244,91 @@ class TimeLogServiceTest {
                 .hasSize(4)
                 .contains(timeStub1, timeStub2, timeStub5, timeStub6);
     }
+
+    @Test
+    @DisplayName(" TimeLog 에서 주어진 Time 범위와 겹치는 시간을 제거한 Time Log 들로 분리할 수 있다.")
+    void split() {
+        //given
+
+        TimeLog includeSplitTimeFront = copyTimeLogFrom(timeInput1);
+        includeSplitTimeFront.setStartTime(LocalTime.of(10, 50));
+        includeSplitTimeFront.setEndTime(LocalTime.of(11, 0));
+        includeSplitTimeFront.setDurationMinutes(Duration.ofMinutes(10L));
+
+        TimeLog includeSplitTimeRear = copyTimeLogFrom(timeInput1);
+        includeSplitTimeRear.setStartTime(LocalTime.of(12, 0));
+        includeSplitTimeRear.setEndTime(LocalTime.of(12, 10));
+        includeSplitTimeRear.setDurationMinutes(Duration.ofMinutes(10L));
+
+        TimeLog includeSplitTimeFrontResult = copyTimeLogFrom(includeSplitTimeFront);
+        TimeLog includeSplitTimeRearResult = copyTimeLogFrom(includeSplitTimeRear);
+
+        will(invocation -> {
+            includeSplitTimeFrontResult.setId(10L);
+            includeSplitTimeRearResult.setId(11L);
+
+            return List.of(includeSplitTimeFrontResult, includeSplitTimeRearResult);
+        }).given(timeLogRepository).saveAll(List.of(includeSplitTimeFront, includeSplitTimeRear));
+
+        will(invocation -> {
+            return List.of();
+        }).given(timeLogRepository).saveAll(List.of());
+
+
+        TimeLog partSplitTimeInput = copyTimeLogFrom(timeStub5);
+        partSplitTimeInput.setId(null);
+        partSplitTimeInput.setStartTime(LocalTime.of(12, 0));
+        partSplitTimeInput.setEndTime(LocalTime.of(12, 30));
+        partSplitTimeInput.setDurationMinutes(Duration.ofMinutes(30L));
+
+        TimeLog partSplitTimeResult = copyTimeLogFrom(partSplitTimeInput);
+
+        will(invocation -> {
+            partSplitTimeResult.setId(12L);
+
+            return List.of(partSplitTimeResult);
+        }).given(timeLogRepository).saveAll(List.of(partSplitTimeInput));
+
+        LocalTime startTime = LocalTime.of(11, 0);
+        LocalTime endTime = LocalTime.of(12, 0);
+
+        //when
+        List<TimeLog> includeEntireRange = timeLogService.splitByRemovingOverlapTimeRange(timeStub1, startTime, endTime);
+        List<TimeLog> insideOfRange = timeLogService.splitByRemovingOverlapTimeRange(timeStub2, startTime, endTime);
+        List<TimeLog> insidePartOfRange = timeLogService.splitByRemovingOverlapTimeRange(timeStub5, startTime, endTime);
+
+        //then
+        verify(timeLogRepository, times(1)).deleteById(1L);
+        verify(timeLogRepository, times(1)).deleteById(2L);
+        verify(timeLogRepository, times(1)).deleteById(5L);
+
+        assertThat(includeEntireRange)
+                .hasSize(2)
+                .contains(includeSplitTimeFrontResult, includeSplitTimeRearResult);
+
+        assertThat(insideOfRange.isEmpty()).isTrue();
+
+        assertThat(insidePartOfRange)
+                .hasSize(1)
+                .contains(partSplitTimeResult);
+
+    }
+
+
+    private TimeLog copyTimeLogFrom(TimeLog timeLog) {
+        if (timeLog == null) {
+            return null;
+        }
+
+        return TimeLog.builder()
+                .id(timeLog.getId())
+                .date(timeLog.getDate())
+                .startTime(timeLog.getStartTime())
+                .endTime(timeLog.getEndTime())
+                .durationMinutes(timeLog.getDurationMinutes())
+                .record(timeLog.getRecord())
+                .build();
+    }
+
 }
 

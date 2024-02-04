@@ -16,7 +16,7 @@ public class RecordService {
     private final RecordRepository recordRepository;
 
     @Transactional
-    public Record save(Record recordData) {
+    public Record create(Record recordData) {
         Record record = Record.builder()
                 .action(recordData.getAction())
                 .memo(recordData.getMemo())

@@ -20,7 +20,7 @@ public class Record {
     private String memo;
 
     @OneToMany(mappedBy = "record")
-    private final List<TimeLog> timeLogs = new ArrayList<>();
+    private List<TimeLog> timeLogs = new ArrayList<>();
 
     @Builder
     public Record(Long id, String action, String memo) {

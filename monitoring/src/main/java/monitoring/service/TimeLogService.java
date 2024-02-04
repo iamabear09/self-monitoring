@@ -22,7 +22,7 @@ public class TimeLogService {
     private final TimeLogRepository timeLogRepository;
 
     @Transactional
-    public List<TimeLog> save(Record record, List<TimeLog> timeLogDataList) {
+    public List<TimeLog> create(Record record, List<TimeLog> timeLogDataList) {
         if (timeLogDataList == null || timeLogDataList.isEmpty()) {
             return new ArrayList<>();
         }
@@ -32,30 +32,8 @@ public class TimeLogService {
                 .map(timeLogData -> timeLogRepository.save(createTimeLogFromData(record, timeLogData)))
                 .toList();
     }
-    private TimeLog createTimeLogFromData(Record record, TimeLog timeLogData) {
-        return TimeLog.builder()
-                .date(timeLogData.getDate())
-                .startTime(timeLogData.getStartTime())
-                .endTime(getEndTimeFrom(timeLogData))
-                .durationMinutes(getDurationFrom(timeLogData))
-                .record(record)
-                .build();
-    }
-    private Duration getDurationFrom(TimeLog timeLog) {
-        if (timeLog.getEndTime() != null) {
-            return Duration.between(timeLog.getStartTime(), timeLog.getEndTime());
-        }
-        return timeLog.getDurationMinutes();
-    }
-    private LocalTime getEndTimeFrom(TimeLog timeLog) {
-        if (timeLog.getDurationMinutes() != null) {
-            return timeLog.getStartTime().plusMinutes(timeLog.getDurationMinutes().toMinutes());
-        }
-        return timeLog.getEndTime();
-    }
 
-
-    public List<TimeLog> getTimeLogsByRecordId(Long recordId) {
+    public List<TimeLog> getByRecordId(Long recordId) {
         return timeLogRepository.findByRecordId(recordId);
     }
 
@@ -78,7 +56,66 @@ public class TimeLogService {
                 .filter(timeLog -> isOverlapped(timeLog, start, end))
                 .toList();
     }
-    
+
+    @Transactional
+    public List<TimeLog> splitByRemovingOverlapTimeRange(TimeLog timeLog, LocalTime startTime, LocalTime endTime) {
+
+        if (!isOverlapped(timeLog, startTime, endTime)) {
+            throw new IllegalArgumentException("겹치는 구간이 없습니다.");
+        }
+
+
+        List<TimeLog> createdTimeLogs = new ArrayList<>();
+
+        if (timeLog.getStartTime().isBefore(startTime)) {
+            TimeLog frontPart = TimeLog.builder()
+                    .date(timeLog.getDate())
+                    .startTime(timeLog.getStartTime())
+                    .endTime(startTime)
+                    .durationMinutes(Duration.between(timeLog.getStartTime(), startTime))
+                    .record(timeLog.getRecord())
+                    .build();
+
+            createdTimeLogs.add(frontPart);
+        }
+
+        if (timeLog.getEndTime().isAfter(endTime)) {
+            TimeLog rearPart = TimeLog.builder()
+                    .date(timeLog.getDate())
+                    .startTime(endTime)
+                    .endTime(timeLog.getEndTime())
+                    .durationMinutes(Duration.between(endTime, timeLog.getEndTime()))
+                    .record(timeLog.getRecord())
+                    .build();
+            createdTimeLogs.add(rearPart);
+        }
+
+        timeLogRepository.deleteById(timeLog.getId());
+        return timeLogRepository.saveAll(createdTimeLogs);
+    }
+
+    private TimeLog createTimeLogFromData(Record record, TimeLog timeLogData) {
+        return TimeLog.builder()
+                .date(timeLogData.getDate())
+                .startTime(timeLogData.getStartTime())
+                .endTime(getEndTimeFrom(timeLogData))
+                .durationMinutes(getDurationFrom(timeLogData))
+                .record(record)
+                .build();
+    }
+    private Duration getDurationFrom(TimeLog timeLog) {
+        if (timeLog.getEndTime() != null) {
+            return Duration.between(timeLog.getStartTime(), timeLog.getEndTime());
+        }
+        return timeLog.getDurationMinutes();
+    }
+    private LocalTime getEndTimeFrom(TimeLog timeLog) {
+        if (timeLog.getDurationMinutes() != null) {
+            return timeLog.getStartTime().plusMinutes(timeLog.getDurationMinutes().toMinutes());
+        }
+        return timeLog.getEndTime();
+    }
+
     private boolean isOverlapped(TimeLog timeLog, LocalTime from, LocalTime to) {
 
         // 끝점만 겹치는 것은 중복이 아닌것으로 판단한다.
@@ -90,15 +127,6 @@ public class TimeLogService {
         // <from ----- to>
         //      <----time Log----> ... 등등
         return true;
-    }
-    
-    @Transactional
-    public TimeLog delete(Long id) {
-        TimeLog timeLog = timeLogRepository.findById(id).orElseThrow(() -> new IllegalArgumentException(ErrorMessage.ENTITY_NOT_FOUND.getMessage()));
-        timeLogRepository.delete(timeLog);
-
-        return timeLog;
-        
     }
 }
 
