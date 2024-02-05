@@ -37,3 +37,4 @@ public class TimeLog {
         this.record = record;
     }
 }
+
