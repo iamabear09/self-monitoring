@@ -49,6 +49,10 @@ public class TimeLogService {
             throw new IllegalArgumentException("모든 값을 필수 입니다.");
         }
 
+        if (start.isAfter(end)) {
+            throw new IllegalArgumentException("start 는 end 보다 작아야 합니다.");
+        }
+
         List<TimeLog> timeLogs = timeLogRepository.findByDate(date);
 
         return timeLogs

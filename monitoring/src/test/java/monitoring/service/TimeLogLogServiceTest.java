@@ -1,9 +1,5 @@
 package monitoring.service;
 
-import jakarta.persistence.FetchType;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import monitoring.api.record.RecordDto;
 import monitoring.domain.Record;
 import monitoring.domain.TimeLog;
 import monitoring.repository.TimeLogRepository;
@@ -14,7 +10,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.Duration;
@@ -30,7 +25,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 @ExtendWith(MockitoExtension.class)
-class TimeLogServiceTest {
+class TimeLogLogServiceTest {
 
     @Mock
     TimeLogRepository timeLogRepository;

@@ -37,15 +37,16 @@ public class RecordService {
                 .orElseThrow(() -> new IllegalArgumentException(ErrorMessage.ENTITY_NOT_FOUND.getMessage()));
 
         if (StringUtils.hasText(recordData.getAction())) {
-            recordData.setAction(record.getAction());
+            record.setAction(recordData.getAction());
         }
         if (StringUtils.hasLength(recordData.getMemo())) {
-            recordData.setMemo(record.getMemo());
+            record.setMemo(recordData.getMemo());
         }
 
         return recordRepository.save(record);
     }
 
+    @Transactional
     public Record delete(Long id) {
         Record record = recordRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException(ErrorMessage.ENTITY_NOT_FOUND.getMessage()));

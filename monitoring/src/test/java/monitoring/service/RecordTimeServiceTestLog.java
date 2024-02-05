@@ -2,7 +2,8 @@ package monitoring.service;
 
 import monitoring.domain.Record;
 import monitoring.domain.TimeLog;
-import monitoring.service.dto.UpdateRecordResponseDto;
+import monitoring.service.request.RecordSearchCond;
+import monitoring.service.response.UpdateRecordResult;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -24,7 +25,7 @@ import static org.mockito.BDDMockito.*;
 import static org.mockito.Mockito.verify;
 
 @ExtendWith(MockitoExtension.class)
-class RecordTimeServiceTest {
+class RecordTimeServiceTestLog {
 
 
     @Mock
@@ -416,12 +417,12 @@ class RecordTimeServiceTest {
 
 
         //when
-        UpdateRecordResponseDto updateRecordResponseDto = recordTimeService.updateWithSideEffect(1L, updateRecordInput1);
+        UpdateRecordResult updateRecordResult = recordTimeService.updateWithSideEffect(1L, updateRecordInput1);
 
         //then
-        List<Record> changedRecords = updateRecordResponseDto.getChangedRecords();
-        List<Record> deletedRecords = updateRecordResponseDto.getDeletedRecords();
-        Record updatedRecord = updateRecordResponseDto.getUpdatedRecord();
+        List<Record> changedRecords = updateRecordResult.getChangedRecords();
+        List<Record> deletedRecords = updateRecordResult.getDeletedRecords();
+        Record updatedRecord = updateRecordResult.getUpdatedRecord();
 
         assertThat(changedRecords)
                 .hasSize(1)
@@ -442,6 +443,62 @@ class RecordTimeServiceTest {
         assertThat(updatedRecord.getTimeLogs())
                 .hasSize(1)
                 .contains(createTimeLog);
+
+    }
+
+    @Test
+    @DisplayName("특정 Record 를 검색할 수 있다.")
+    void getRecords() {
+
+        //given
+        String actionCond1 = "헬";
+        String actionCond2 = "";
+        LocalDate dateCond = LocalDate.of(2024, 1, 1);
+        will(invocation -> {
+            timeStub1.setRecord(recordStub1);
+            timeStub2.setRecord(recordStub1);
+            recordStub1.setTimeLogs(List.of(timeStub1, timeStub2));
+
+            timeStub3.setRecord(recordStub2);
+            timeStub4.setRecord(recordStub2);
+            recordStub2.setTimeLogs(List.of(timeStub3, timeStub4));
+
+            timeStub5.setRecord(recordStub3);
+            timeStub6.setRecord(recordStub3);
+            recordStub3.setTimeLogs(List.of(timeStub5, timeStub6));
+
+            return List.of(timeStub1, timeStub2, timeStub3, timeStub4, timeStub5, timeStub6);
+        }).given(timeLogService).searchOverlappingTimeLogs(dateCond, LocalTime.of(0, 0), LocalTime.of(23, 59));
+
+        RecordSearchCond cond1 = RecordSearchCond.builder()
+                .date(dateCond)
+                .action(actionCond1)
+                .build();
+
+        RecordSearchCond cond2 = RecordSearchCond.builder()
+                .date(dateCond)
+                .action(actionCond2)
+                .build();
+
+
+        willReturn(recordStub1)
+                .given(recordTimeService).getRecordWithTimeLogs(1L);
+        willReturn(recordStub2)
+                .given(recordTimeService).getRecordWithTimeLogs(2L);
+        willReturn(recordStub3)
+                .given(recordTimeService).getRecordWithTimeLogs(3L);
+
+        //when
+        List<Record> records1 = recordTimeService.getRecords(cond1);
+        List<Record> records2 = recordTimeService.getRecords(cond2);
+
+        //then
+        assertThat(records1)
+                .hasSize(1)
+                .contains(recordStub2);
+
+        assertThat(records2).hasSize(3)
+                .contains(recordStub1, recordStub2, recordStub3);
 
     }
 
