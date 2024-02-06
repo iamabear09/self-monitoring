@@ -1,9 +1,6 @@
 package monitoring.controller.request;
 
-import lombok.AccessLevel;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import monitoring.domain.TimeLog;
 
 import java.time.LocalDate;

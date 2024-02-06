@@ -22,8 +22,15 @@ public class PatchUpdateRecordRequest {
     public PatchUpdateRecordRequest(String action, String memo, List<PatchUpdateTimeLogRequest> timeLogRequests) {
         this.action = action;
         this.memo = memo;
-        this.timeLogRequests = Optional.ofNullable(timeLogRequests)
-                .orElse(new ArrayList<>());
+        this.timeLogRequests = timeLogRequests;
+
+        /*
+        * 생성자를 호출해서 PatchUpdateRecordRequest 를 생성하지 않는다.
+        * Reflection 을 사용하는 것으로 알고 있다.
+        * 따라서, 아래 코드는 동작하지 않는다.
+        * */
+        // this.timeLogRequests = Optional.ofNullable(timeLogRequests).orElse(new ArrayList<>());
+
     }
 
     public Record toRecord() {
@@ -32,7 +39,10 @@ public class PatchUpdateRecordRequest {
                 .memo(memo)
                 .build();
 
-        List<TimeLog> timeLogs = timeLogRequests.stream()
+        List<TimeLog> timeLogs = Optional
+                .ofNullable(timeLogRequests)
+                .orElse(new ArrayList<>())
+                .stream()
                 .map(t -> t.toTimeLog())
                 .toList();
 

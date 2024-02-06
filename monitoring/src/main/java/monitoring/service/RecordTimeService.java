@@ -97,6 +97,8 @@ public class RecordTimeService {
 
                 if (createdTimeLogs.isEmpty() && overlapRecord.getTimeLogs().isEmpty()) {
                     recordService.delete(overlapRecord.getId());
+                    // TimeLog 가 2개 이상였을 경우, 앞에서 changedRecordSet 에 들어가 있을 수 있다.
+                    changedRecordSet.remove(overlapRecord);
                     deletedRecordSet.add(overlapRecord);
                     return;
                 }
