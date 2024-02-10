@@ -5,7 +5,6 @@ import monitoring.domain.Record;
 import monitoring.domain.TimeLog;
 import monitoring.service.request.RecordSearchCond;
 import monitoring.service.response.UpdateRecordResult;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
