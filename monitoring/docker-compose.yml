@@ -1,7 +1,6 @@
 version: '3.8'
 
 services:
-
   mysql:
     image: mysql:8.1
     command:
@@ -10,6 +9,11 @@ services:
       --collation-server=utf8mb4_unicode_ci
     restart: always
     environment:
-      MYSQL_ROOT_PASSWORD: "${DB_PW}"
+      MYSQL_ROOT_PASSWORD: 1234
     ports:
       - "3306:3306"
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p1234"]
+      interval: 10s
+      timeout: 10s
+      retries: 5

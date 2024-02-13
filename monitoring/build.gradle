@@ -18,22 +18,12 @@ repositories {
 }
 
 dependencies {
-
-    /* -------- implementation a → z ------- */
-    //mysql
-    runtimeOnly 'com.mysql:mysql-connector-j'
-    //spring data jpa
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
-    //spring mvc
     implementation 'org.springframework.boot:spring-boot-starter-web'
-    //h2
-    runtimeOnly 'com.h2database:h2'
-    /* ------- implementation a → z ------- */
 
+    runtimeOnly 'com.mysql:mysql-connector-j'
 
-    /* ------- test a → z ------- */
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
-    /* ------- test a → z ------- */
 
 }
 
