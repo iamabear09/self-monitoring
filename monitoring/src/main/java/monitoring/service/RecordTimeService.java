@@ -135,6 +135,5 @@ public class RecordTimeService {
             deletedTimeLog.setRecord(null);
         });
     }
-
 }
 
