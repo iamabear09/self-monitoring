@@ -1,0 +1,15 @@
+version: '3.8'
+
+services:
+  ngrinder-controller:
+    image: ngrinder/controller
+    ports:
+      - '8888:80'
+      - '12000-12009:12000-12009'
+      - '16001:16001'
+  
+  ngrinder-agent:
+    image: ngrinder/agent
+    command: 'ngrinder-controller:80'
+
+
