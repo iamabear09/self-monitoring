@@ -1,0 +1,28 @@
+version: '3.8'
+
+volumes:
+  grafana-storage:
+  prometheus-storage:
+
+services:
+  prometheus:
+    image: prom/prometheus:v2.45.3
+    ports:
+      - '9090:9090'
+    volumes:
+      - type: volume
+        source: prometheus-storage
+        target: /prometheus
+      - type: bind
+        source: ./prometheus/prometheus.yml
+        target: /etc/prometheus/prometheus.yml
+
+  grafana:
+    image: grafana/grafana:10.2.4
+    ports:
+      - '3000:3000'
+    volumes:
+      - type: volume
+        source: grafana-storage
+        target: /var/lib/grafana
+    depends_on: [prometheus]
