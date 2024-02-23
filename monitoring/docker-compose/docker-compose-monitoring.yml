@@ -25,4 +25,8 @@ services:
       - type: volume
         source: grafana-storage
         target: /var/lib/grafana
+      - type: bind
+        source: ./grafana/datasource-prometheus.yml
+        target: /etc/grafana/provisioning/datasources/datasource-prometheus.yml
     depends_on: [prometheus]
+

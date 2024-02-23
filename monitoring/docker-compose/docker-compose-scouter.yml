@@ -1,0 +1,26 @@
+version: '3.8'
+
+volumes:
+  scouter-log:
+  scouter-data:
+
+services:
+  scouter:
+    image: scouterapm/scouter-server:2.17.1
+    restart: always
+#    environment:
+#      - JAVA_OPT=-Xms1024m -Xmx1024m
+    volumes:
+      - ./scouter/scouter.conf:/home/scouter-server/conf/scouter.conf
+      - scouter-log:/home/scouter-server/logs
+      - scouter-data:/home/scouter-server/database
+    ports:
+      - 6180:6180
+      - 6100:6100
+      - 6100:6100/udp
+
+  scouter-paper:
+    image : scouterapm/scouter-paper:2.6.4
+    restart : always
+    ports:
+      - 8088:80

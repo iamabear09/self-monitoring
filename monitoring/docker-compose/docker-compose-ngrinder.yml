@@ -1,0 +1,27 @@
+version: '3.8'
+
+volumes:
+  controller-storage:
+  agent-storage:
+
+services:
+  ngrinder-controller:
+    image: ngrinder/controller
+    ports:
+      - '8888:80'
+      - '12000-12009:12000-12009'
+      - '16001:16001'
+    volumes:
+      - type: volume
+        source: controller-storage
+        target: '/opt/ngrinder-controller'
+
+  ngrinder-agent:
+    image: ngrinder/agent
+    command: 'ngrinder-controller:80'
+    volumes:
+      - type: volume
+        source: agent-storage
+        target: '/opt/ngrinder-agent'
+
+
