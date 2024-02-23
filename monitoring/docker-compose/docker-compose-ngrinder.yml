@@ -23,5 +23,3 @@ services:
       - type: volume
         source: agent-storage
         target: '/opt/ngrinder-agent'
-
-
