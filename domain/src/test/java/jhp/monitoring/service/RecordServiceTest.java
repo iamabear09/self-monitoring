@@ -37,7 +37,7 @@ class RecordServiceTest {
                 .memo(memo1)
                 .build();
 
-        long id = 1L;
+        String id = "1";
         mockRecord1 = Record.builder()
                 .id(id)
                 .action(action1)

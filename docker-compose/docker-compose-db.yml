@@ -1,0 +1,26 @@
+version: '3.8'
+
+volumes:
+  mysql-storage:
+
+services:
+  mysql:
+    image: mysql:8.1
+    command:
+      --default-authentication-plugin=mysql_native_password
+      --character-set-server=utf8mb4
+      --collation-server=utf8mb4_unicode_ci
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: 1234
+    ports:
+      - "3306:3306"
+    volumes:
+      - type: volume
+        source: mysql-storage
+        target: /var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p1234"]
+      interval: 10s
+      timeout: 10s
+      retries: 5

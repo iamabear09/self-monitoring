@@ -25,13 +25,13 @@ public class RecordService {
         return recordRepository.save(record);
     }
 
-    public Record get(Long id) {
+    public Record get(String id) {
         return recordRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException(ErrorMessage.ENTITY_NOT_FOUND.getMessage()));
     }
 
     @Transactional
-    public Record update(Long id, Record recordData) {
+    public Record update(String id, Record recordData) {
 
         Record record = recordRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException(ErrorMessage.ENTITY_NOT_FOUND.getMessage()));
@@ -47,7 +47,7 @@ public class RecordService {
     }
 
     @Transactional
-    public Record delete(Long id) {
+    public Record delete(String id) {
         Record record = recordRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException(ErrorMessage.ENTITY_NOT_FOUND.getMessage()));
         recordRepository.delete(record);

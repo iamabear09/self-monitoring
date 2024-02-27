@@ -14,9 +14,8 @@ import java.util.List;
 public class Record {
 
     @Id
-    @GeneratedValue
     @Column(name = "record_id")
-    private Long id;
+    private String id;
     private String action;
     private String memo;
 
@@ -24,7 +23,7 @@ public class Record {
     private List<TimeLog> timeLogs = new ArrayList<>();
 
     @Builder
-    public Record(Long id, String action, String memo) {
+    public Record(String id, String action, String memo) {
         this.id = id;
         this.action = action;
         this.memo = memo;

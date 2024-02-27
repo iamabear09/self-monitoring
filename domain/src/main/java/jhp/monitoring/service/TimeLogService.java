@@ -32,12 +32,12 @@ public class TimeLogService {
                 .toList();
     }
 
-    public List<TimeLog> getByRecordId(Long recordId) {
+    public List<TimeLog> getByRecordId(String recordId) {
         return timeLogRepository.findByRecordId(recordId);
     }
 
     @Transactional
-    public List<TimeLog> deleteByRecordId(Long recordId) {
+    public List<TimeLog> deleteByRecordId(String recordId) {
         List<TimeLog> timeLogs = timeLogRepository.findByRecordId(recordId);
         timeLogRepository.deleteAllInBatch(timeLogs);
         return timeLogs;

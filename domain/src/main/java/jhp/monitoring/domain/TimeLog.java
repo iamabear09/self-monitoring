@@ -1,5 +1,6 @@
 package jhp.monitoring.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -25,6 +26,7 @@ public class TimeLog {
     private LocalTime endTime;
     private Duration durationMinutes;
 
+    @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "record_id")
     private Record record;

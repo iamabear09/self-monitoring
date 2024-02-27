@@ -55,7 +55,7 @@ class TimeLogServiceTest {
     void initGiven() {
 
         recordStub1 = Record.builder()
-                .id(1L)
+                .id("1")
                 .action("공부")
                 .memo("Gradle 공부")
                 .build();
