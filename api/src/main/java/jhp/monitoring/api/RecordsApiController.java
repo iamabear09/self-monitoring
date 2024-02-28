@@ -3,7 +3,8 @@ package jhp.monitoring.api;
 import com.github.f4b6a3.ulid.UlidCreator;
 import jhp.monitoring.api.config.kafka.KafkaTopicConfig;
 import jhp.monitoring.api.request.CreateRecordRequest;
-import jhp.monitoring.api.response.CreateRecordResponse;
+import jhp.monitoring.api.request.PatchUpdateRecordRequest;
+import jhp.monitoring.api.response.RecordOnlyIdResponse;
 import jhp.monitoring.api.response.GetRecordResponse;
 import jhp.monitoring.api.response.SearchRecordResponse;
 import jhp.monitoring.api.service.RecordTimeReadService;
@@ -26,7 +27,7 @@ public class RecordsApiController {
     private final RecordTimeReadService recordTimeReadReadService;
 
     @PostMapping
-    public CreateRecordResponse createRecord(@RequestBody CreateRecordRequest request) {
+    public RecordOnlyIdResponse createRecord(@RequestBody CreateRecordRequest request) {
         String recordId = UlidCreator.getUlid().toLowerCase();
 
         kafkaTemplate.send(KafkaTopicConfig.TOPIC_CREATE_RECORD, recordId, request.toRecordWithId(recordId))
@@ -37,7 +38,7 @@ public class RecordsApiController {
                         log.error("Fail Creating Record: {} \n error: {}", result.getProducerRecord().value(), ex.getMessage());
                     }});
 
-        return new CreateRecordResponse(recordId);
+        return new RecordOnlyIdResponse(recordId);
     }
 
     @GetMapping("/{id}")
@@ -51,4 +52,22 @@ public class RecordsApiController {
         List<Record> searchedRecords = recordTimeReadReadService.getRecords(cond);
         return SearchRecordResponse.from(searchedRecords);
     }
+
+    @PatchMapping("/{id}")
+    public RecordOnlyIdResponse updateRecordByPatch(@PathVariable String id, @RequestBody PatchUpdateRecordRequest request) {
+
+        Record updateRecordData = request.toRecord();
+        updateRecordData.setId(id);
+
+        kafkaTemplate.send(KafkaTopicConfig.TOPIC_PATCH_UPDATE_RECORD, id, updateRecordData)
+                .whenComplete((result, ex) -> {
+                    if (ex == null) {
+                        log.info("Created Record Data: {}", result.getProducerRecord().value());
+                    } else {
+                        log.error("Fail Creating Record: {} \n error: {}", result.getProducerRecord().value(), ex.getMessage());
+                    }});
+
+        return new RecordOnlyIdResponse(id);
+    }
+
 }

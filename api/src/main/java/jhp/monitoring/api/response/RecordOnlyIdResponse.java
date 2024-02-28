@@ -4,11 +4,11 @@ import lombok.*;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
-public class CreateRecordResponse {
+public class RecordOnlyIdResponse {
 
     private String recordId;
 
-    public CreateRecordResponse(String recordId) {
+    public RecordOnlyIdResponse(String recordId) {
         this.recordId = recordId;
     }
 }
