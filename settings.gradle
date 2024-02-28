@@ -5,5 +5,5 @@ plugins {
 
 rootProject.name = 'self-monitoring'
 
-include 'domain', 'monitoring', 'api'
+include 'domain-service', 'monitoring', 'api'
 
