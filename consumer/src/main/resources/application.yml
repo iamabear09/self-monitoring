@@ -6,12 +6,14 @@ spring:
 
   jpa:
     hibernate:
-      ddl-auto: none
+      ddl-auto: create
 
   kafka:
     bootstrap-servers: localhost:29092
 
 logging.level:
   org.hibernate.SQL: debug
+  jhp.monitoring.service: debug
+
 
 
