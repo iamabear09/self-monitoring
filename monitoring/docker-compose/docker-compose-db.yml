@@ -1,5 +1,8 @@
 version: '3.8'
 
+volumes:
+  mysql-storage:
+
 services:
   mysql:
     image: mysql:8.1
@@ -12,6 +15,10 @@ services:
       MYSQL_ROOT_PASSWORD: 1234
     ports:
       - "3306:3306"
+    volumes:
+      - type: volume
+        source: mysql-storage
+        target: /var/lib/mysql
     healthcheck:
       test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p1234"]
       interval: 10s

@@ -10,3 +10,14 @@ spring:
 
 logging.level:
   org.hibernate.SQL: debug
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+
+server:
+  tomcat:
+    mbeanregistry:
+      enabled: true
