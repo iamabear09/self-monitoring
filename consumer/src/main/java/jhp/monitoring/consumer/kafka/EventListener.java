@@ -21,6 +21,4 @@ public class EventListener {
         Record saveRecord = recordTimeService.create(record);
         log.info("saved Record Id = {}",saveRecord.getId());
     }
-
-
 }

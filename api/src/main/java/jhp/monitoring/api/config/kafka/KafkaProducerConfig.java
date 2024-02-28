@@ -1,4 +1,4 @@
-package jhp.monitoring.api.kafka;
+package jhp.monitoring.api.config.kafka;
 
 import jhp.monitoring.domain.Record;
 import org.apache.kafka.clients.producer.ProducerConfig;

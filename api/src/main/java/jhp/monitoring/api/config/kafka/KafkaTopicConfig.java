@@ -1,4 +1,4 @@
-package jhp.monitoring.api.kafka;
+package jhp.monitoring.api.config.kafka;
 
 import org.apache.kafka.clients.admin.AdminClientConfig;
 import org.apache.kafka.clients.admin.NewTopic;

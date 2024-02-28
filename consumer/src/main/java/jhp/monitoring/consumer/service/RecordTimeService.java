@@ -35,7 +35,6 @@ public class RecordTimeService {
             timeLog.setRecord(record);
         });
     }
-
 }
 
 
