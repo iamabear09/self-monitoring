@@ -2,8 +2,6 @@ package jhp.monitoring.api.response;
 
 import lombok.*;
 
-import java.util.List;
-
 @Getter
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class CreateRecordResponse {

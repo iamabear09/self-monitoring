@@ -8,7 +8,6 @@ import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalTime;
 
-
 @Getter
 @Setter
 @EqualsAndHashCode(exclude = "record") @ToString(exclude = "record")
