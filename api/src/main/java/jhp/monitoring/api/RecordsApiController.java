@@ -5,13 +5,13 @@ import jhp.monitoring.api.config.kafka.KafkaTopicConfig;
 import jhp.monitoring.api.request.CreateRecordRequest;
 import jhp.monitoring.api.response.CreateRecordResponse;
 import jhp.monitoring.api.response.GetRecordResponse;
+import jhp.monitoring.api.response.SearchRecordResponse;
 import jhp.monitoring.api.service.RecordTimeReadService;
+import jhp.monitoring.api.service.request.RecordSearchCond;
 import jhp.monitoring.domain.Record;
-import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.core.KafkaTemplate;
-import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -21,10 +21,9 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/records")
 public class RecordsApiController {
+
     private final KafkaTemplate<String, Record> kafkaTemplate;
-
     private final RecordTimeReadService recordTimeReadReadService;
-
 
     @PostMapping
     public CreateRecordResponse createRecord(@RequestBody CreateRecordRequest request) {
@@ -47,4 +46,9 @@ public class RecordsApiController {
         return GetRecordResponse.from(record);
     }
 
+    @GetMapping
+    public SearchRecordResponse getRecords(@ModelAttribute RecordSearchCond cond) {
+        List<Record> searchedRecords = recordTimeReadReadService.getRecords(cond);
+        return SearchRecordResponse.from(searchedRecords);
+    }
 }
