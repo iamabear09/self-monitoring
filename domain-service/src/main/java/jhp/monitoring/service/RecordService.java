@@ -18,6 +18,7 @@ public class RecordService {
     @Transactional
     public Record create(Record recordData) {
         Record record = Record.builder()
+                .id(recordData.getId())
                 .action(recordData.getAction())
                 .memo(recordData.getMemo())
                 .build();
