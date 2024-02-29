@@ -1,5 +1,6 @@
 package jhp.monitoring.consumer.kafka;
 
+import jhp.monitoring.common.KafkaTopicNames;
 import jhp.monitoring.consumer.service.RecordTimeService;
 import jhp.monitoring.domain.Record;
 import lombok.RequiredArgsConstructor;
@@ -11,14 +12,26 @@ import org.springframework.stereotype.Component;
 @Slf4j
 @RequiredArgsConstructor
 public class EventListener {
+    private static final String RECORD_CONSUMER_GROUP = "record";
 
     private final RecordTimeService recordTimeService;
 
-    @KafkaListener(topics = "create-record", groupId = "record")
+
+    @KafkaListener(topics = KafkaTopicNames.TOPIC_CREATE_RECORD, groupId = RECORD_CONSUMER_GROUP)
     public void createRecord(Record record) {
-        log.info("호출은 되는 거야?");
-        log.info("record = {}", record);
         Record saveRecord = recordTimeService.create(record);
-        log.info("saved Record Id = {}",saveRecord.getId());
+        log.debug("saved Record Id = {}",saveRecord.getId());
+    }
+
+    @KafkaListener(topics = KafkaTopicNames.TOPIC_PATCH_UPDATE_RECORD, groupId = RECORD_CONSUMER_GROUP)
+    public void updateRecord(Record recordData) {
+        recordTimeService.update(recordData.getId(), recordData);
+        log.debug("updated Record Id = {}", recordData.getId());
+    }
+
+    @KafkaListener(topics = KafkaTopicNames.TOPIC_PUT_UPDATE_RECORD, groupId = RECORD_CONSUMER_GROUP)
+    public void updateRecordByRemovingDuplicatedTimeLogs(Record recordData) {
+        recordTimeService.updateWithRemovingDuplicatedTimeLogs(recordData.getId(), recordData);
+        log.debug("updated Record Id = {}", recordData.getId());
     }
 }

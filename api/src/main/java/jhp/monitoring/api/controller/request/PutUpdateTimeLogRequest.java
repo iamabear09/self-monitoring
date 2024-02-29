@@ -1,4 +1,4 @@
-package jhp.monitoring.api.request;
+package jhp.monitoring.api.controller.request;
 
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -11,14 +11,14 @@ import java.time.LocalTime;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
-public class PatchUpdateTimeLogRequest {
+public class PutUpdateTimeLogRequest {
 
     private LocalDate date;
     private LocalTime startTime;
     private LocalTime endTime;
 
     @Builder
-    public PatchUpdateTimeLogRequest(LocalDate date, LocalTime startTime, LocalTime endTime) {
+    public PutUpdateTimeLogRequest(LocalDate date, LocalTime startTime, LocalTime endTime) {
         this.date = date;
         this.startTime = startTime;
         this.endTime = endTime;

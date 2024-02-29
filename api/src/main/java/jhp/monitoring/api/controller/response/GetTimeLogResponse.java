@@ -1,4 +1,4 @@
-package jhp.monitoring.api.response;
+package jhp.monitoring.api.controller.response;
 
 import lombok.*;
 import jhp.monitoring.domain.TimeLog;

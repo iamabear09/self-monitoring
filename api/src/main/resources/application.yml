@@ -13,5 +13,6 @@ spring:
 
 logging.level:
   org.hibernate.SQL: debug
+  jhp.monitoring.service: debug
 
 

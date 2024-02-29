@@ -1,4 +1,4 @@
-package jhp.monitoring.consumer.kafka;
+package jhp.monitoring.consumer.config;
 
 
 import jhp.monitoring.domain.Record;

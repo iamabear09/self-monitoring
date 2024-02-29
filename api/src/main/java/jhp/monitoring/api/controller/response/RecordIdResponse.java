@@ -1,14 +1,14 @@
-package jhp.monitoring.api.response;
+package jhp.monitoring.api.controller.response;
 
 import lombok.*;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
-public class RecordOnlyIdResponse {
+public class RecordIdResponse {
 
     private String recordId;
 
-    public RecordOnlyIdResponse(String recordId) {
+    public RecordIdResponse(String recordId) {
         this.recordId = recordId;
     }
 }

@@ -9,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
 import java.util.ArrayList;
@@ -25,7 +26,7 @@ public class RecordTimeReadService {
     private final RecordService recordService;
     private final TimeLogService timeLogService;
     private final ThreadPoolTaskExecutor threadPool;
-    
+
     public Record getRecordWithTimeLogs(String recordId) {
         CompletableFuture<List<TimeLog>> timeLogsFuture = CompletableFuture.supplyAsync(() -> {
             List<TimeLog> timeLogs = timeLogService.getByRecordId(recordId);
@@ -64,4 +65,10 @@ public class RecordTimeReadService {
 
         return searchRecordSet.stream().toList();
     }
+
+    public void validateRecordId(String id) {
+        recordService.get(id);
+    }
+
+
 }
