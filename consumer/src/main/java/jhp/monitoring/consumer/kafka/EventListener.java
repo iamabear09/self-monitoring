@@ -32,6 +32,12 @@ public class EventListener {
     @KafkaListener(topics = KafkaTopicNames.TOPIC_PUT_UPDATE_RECORD, groupId = RECORD_CONSUMER_GROUP)
     public void updateRecordByRemovingDuplicatedTimeLogs(Record recordData) {
         UpdateRecordResult updateRecordResult = recordTimeService.updateWithRemovingDuplicatedTimeLogs(recordData.getId(), recordData);
-        log.debug("put updated Result Id = {}", updateRecordResult);
+        log.debug("put updated Result = {}", updateRecordResult);
+    }
+
+    @KafkaListener(topics = KafkaTopicNames.TOPIC_DELETE_RECORD, groupId = RECORD_CONSUMER_GROUP)
+    public void deleteRecord(Record recordData) {
+        Record deleteRecord = recordTimeService.delete(recordData.getId());
+        log.debug("delete Record Result = {}", deleteRecord);
     }
 }

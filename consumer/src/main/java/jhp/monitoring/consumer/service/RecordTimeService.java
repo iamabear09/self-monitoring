@@ -108,7 +108,15 @@ public class RecordTimeService {
         connectRecordAndTimeLogList(record, timeLogs);
         return record;
     }
-}
 
+    @Transactional
+    public Record delete(String id) {
+        List<TimeLog> deletedTimeLogs = timeLogService.deleteByRecordId(id);
+        Record deleteRecord = recordService.delete(id);
+
+        deleteRecord.setTimeLogs(deletedTimeLogs);
+        return deleteRecord;
+    }
+}
 
 
