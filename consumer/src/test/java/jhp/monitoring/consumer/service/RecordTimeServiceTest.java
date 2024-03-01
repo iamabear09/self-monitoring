@@ -9,7 +9,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.BDDMockito;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
@@ -23,8 +22,6 @@ import java.util.List;
 import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.in;
-import static org.assertj.core.api.InstanceOfAssertFactories.PATH;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.will;
 import static org.mockito.Mockito.verify;
@@ -43,35 +40,28 @@ class RecordTimeServiceTest {
     //given
     Record recordInput1;
     Record recordResult1;
-    TimeLog timeInput1;
-    TimeLog timeResult1;
-    TimeLog timeInput2;
-    TimeLog timeResult2;
+
 
     Record updateRecordInput1;
     Record updateRecordResult1;
-
     Record recordInput2;
     Record recordResult2;
 
     Record recordInput3;
     Record recordResult3;
-
-
-    //given
-
+    TimeLog timeInput1;
+    TimeLog timeResult1;
+    TimeLog timeInput2;
+    TimeLog timeResult2;
 
     TimeLog timeInput3;
     TimeLog timeInput4;
     TimeLog timeMockInput3;
     TimeLog timeMockInput4;
     TimeLog timeResult4;
-
-
     TimeLog timeResult3;
 
     TimeLog timeResult5;
-    TimeLog timeStub6;
 
     @BeforeEach
     void initGivenRecord() {
@@ -91,7 +81,6 @@ class RecordTimeServiceTest {
                 .memo(memo1)
                 .build();
 
-        String updateRecordId1 = "updateId1";
         String updateAction1 = "밥";
         String updateMemo1 = "고등어";
         updateRecordInput1 = Record.builder()
@@ -130,9 +119,6 @@ class RecordTimeServiceTest {
                 .action(action3)
                 .memo(memo3)
                 .build();
-
-
-
     }
 
     @BeforeEach

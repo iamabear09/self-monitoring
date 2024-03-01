@@ -64,10 +64,7 @@ public class RecordTimeReadService {
 
         return searchRecordSet.stream().toList();
     }
-
     public void validateRecordId(String id) {
         recordService.get(id);
     }
-
-
 }
