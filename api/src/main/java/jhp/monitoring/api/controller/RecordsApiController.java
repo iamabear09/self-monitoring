@@ -96,4 +96,23 @@ public class RecordsApiController {
                     }});
         return new RecordIdResponse(id);
     }
+
+
+    @DeleteMapping("/{id}")
+    public GetRecordResponse deleteRecord(@PathVariable String id) {
+
+        Record deletedRecord = recordTimeReadReadService.getRecordWithTimeLogs(id);
+
+        kafkaTemplate.send(KafkaTopicNames.TOPIC_DELETE_RECORD, id, deletedRecord)
+                .whenComplete((result, ex) -> {
+                    if (ex == null) {
+                        log.debug("Deleted Record Data: {}", result.getProducerRecord().value());
+                    } else {
+                        log.error("Fail to delete Record: {} \n error: {}", result.getProducerRecord().value(), ex.getMessage());
+                        // error 를 던져주고, 에러 응답이 나가도록 설정해야 한다.
+                    }});
+
+        return GetRecordResponse.from(deletedRecord);
+    }
+
 }
