@@ -1,5 +1,6 @@
 package jhp.monitoring.consumer.service;
 
+import jhp.monitoring.consumer.service.response.UpdateRecordResult;
 import jhp.monitoring.domain.Record;
 import jhp.monitoring.domain.TimeLog;
 import jhp.monitoring.service.RecordService;
@@ -9,7 +10,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
-
 
 @Service
 @RequiredArgsConstructor
@@ -37,7 +37,7 @@ public class RecordTimeService {
 
 
     @Transactional
-    public void update(String id, Record recordData) {
+    public Record update(String id, Record recordData) {
         Record updatedRecord = recordService.update(id, recordData);
 
         if (recordData.getTimeLogs() != null && !recordData.getTimeLogs().isEmpty()) {
@@ -48,6 +48,8 @@ public class RecordTimeService {
             List<TimeLog> notUpdatedTimeLogs = timeLogService.getByRecordId(id);
             connectRecordAndTimeLogList(updatedRecord, notUpdatedTimeLogs);
         }
+
+        return updatedRecord;
     }
 
     /*
@@ -56,10 +58,13 @@ public class RecordTimeService {
     * 이때, 다른 Record 의 TimeLog 에서 변경된 TimeLog 와 겹치는 구간을 제거한다.
     */
     @Transactional
-    public void updateWithRemovingDuplicatedTimeLogs(String id, Record recordData) {
+    public UpdateRecordResult updateWithRemovingDuplicatedTimeLogs(String id, Record recordData) {
+
+        UpdateRecordResult updateRecordResult = new UpdateRecordResult();
 
         recordData.getTimeLogs()
                 .forEach(timeData -> {
+
                     // 변경 하는 TimeLog 와 중복된 Time Log 를 찾아서 중복 구간을 제거한다.
                     timeLogService.searchOverlappingTimeLogs(timeData.getDate(), timeData.getStartTime(), timeData.getEndTime())
                             .forEach(overlapTime -> {
@@ -67,14 +72,37 @@ public class RecordTimeService {
                                 if (Objects.equals(overlapTime.getRecord().getId(), id)) {
                                     return;
                                 }
+
                                 Record overlapRecord = getRecordWithTimeLogs(overlapTime.getRecord().getId());
-                                timeLogService.splitByRemovingOverlapTimeRange(overlapTime, timeData.getStartTime(), timeData.getEndTime());
+                                List<TimeLog> createdTimeLogs = timeLogService.splitByRemovingOverlapTimeRange(overlapTime, timeData.getStartTime(), timeData.getEndTime());
+
+                                // update TimeLogs in Record - 영속성 컨텍스트 때문에 객체의 상태도 변경
+                                overlapRecord.getTimeLogs().remove(overlapTime);
+                                overlapRecord.getTimeLogs().addAll(createdTimeLogs);
+
+                                //it means record has no timeLogs. So let's delete record.
+                                if (createdTimeLogs.isEmpty()) {
+                                    updateRecordResult
+                                            .getDeletedRecordIdSet()
+                                            .add(overlapRecord.getId());
+                                    recordService.delete(overlapRecord.getId());
+                                } else {
+                                    updateRecordResult
+                                            .getChangedRecordIdSet()
+                                            .add(overlapRecord.getId());
+                                }
                             });
                 });
-        update(id, recordData);
+
+        updateRecordResult.removeDuplicatedIds();
+
+        Record updateRecord = update(id, recordData);
+        updateRecordResult.setUpdatedRecord(updateRecord);
+
+        return updateRecordResult;
     }
 
-    private Record getRecordWithTimeLogs(String recordId) {
+    Record getRecordWithTimeLogs(String recordId) {
         Record record = recordService.get(recordId);
         List<TimeLog> timeLogs = timeLogService.getByRecordId(recordId);
         connectRecordAndTimeLogList(record, timeLogs);

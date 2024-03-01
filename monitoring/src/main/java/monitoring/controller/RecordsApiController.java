@@ -50,7 +50,6 @@ public class RecordsApiController {
         return GetRecordResponse.from(updateRecord);
     }
 
-
     @PutMapping("/{id}")
     public PutUpdateRecordResponse updateRecordByPut(@PathVariable Long id, @RequestBody PutUpdateRecordRequest request) {
         UpdateRecordResult updateRecordResult = recordTimeService.updateWithSideEffect(id, request.toRecord());
@@ -62,4 +61,5 @@ public class RecordsApiController {
         Record record = recordTimeService.delete(id);
         return GetRecordResponse.from(record);
     }
+
 }

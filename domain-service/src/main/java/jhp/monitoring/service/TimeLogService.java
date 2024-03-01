@@ -63,11 +63,6 @@ public class TimeLogService {
     @Transactional
     public List<TimeLog> splitByRemovingOverlapTimeRange(TimeLog timeLog, LocalTime startTime, LocalTime endTime) {
 
-        if (!isOverlapped(timeLog, startTime, endTime)) {
-            throw new IllegalArgumentException("겹치는 구간이 없습니다.");
-        }
-
-
         List<TimeLog> createdTimeLogs = new ArrayList<>();
 
         if (timeLog.getStartTime().isBefore(startTime)) {
